@@ -133,13 +133,6 @@ JUnit tests have been written for key methods within the project:
 - Located in `/src/test/java/`.
 - A test suite is available to run all test cases at once.
   
-### Javadoc Documentation
-- Javadoc comments are included for each class and method.
-- To generate the full Javadoc documentation, run:
-  ```bash
-  javadoc -d doc -sourcepath src -subpackages your.package.name
-  ```
-
 ---
 
 ## Contributing
