@@ -1,7 +1,7 @@
 /**
  * Class representing a savings account.
  */
-public class Saving extends Account {
+public class Saving extends Account implements AccountBehavior{
 
     /**
      * Constructor to initialize a savings account with account number and balance.
