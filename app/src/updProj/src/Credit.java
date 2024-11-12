@@ -1,7 +1,7 @@
 /**
  * Class representing a credit account.
  */
-public class Credit extends Account {
+public class Credit extends Account implements AccountBehavior{
     private double credLimit;
 
     /**
@@ -57,3 +57,4 @@ public class Credit extends Account {
         return "Credit";
     }
 }
+
