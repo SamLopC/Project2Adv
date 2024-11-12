@@ -3,7 +3,7 @@ import java.util.Scanner;
  * Class representing a customer with an associated account.
  */
 public class Customer extends Person {
-    private Account account;
+    //private Account account;
     private Checking checkingAccount;
     private Saving savingAccount;
     private Credit creditAccount;
