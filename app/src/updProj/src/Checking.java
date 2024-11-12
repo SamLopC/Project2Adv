@@ -1,7 +1,7 @@
 /**
  * Class representing a checking account.
  */
-public class Checking extends Account {
+public class Checking extends Account implements AccountBehavior{
 
     /**
      * Constructor to initialize a checking account with account number and balance.
