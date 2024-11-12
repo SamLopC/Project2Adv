@@ -36,6 +36,10 @@ public class Credit extends Account {
         return "Credit";
     }
 
+    public String getCreditLimit() {
+        return String.valueOf(credLimit); // Returns credit limit as a String
+    }
+
     @Override
     public void deposit(double amount, String customerName, boolean logTransaction) {
         if (amount <= 0) {

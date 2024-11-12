@@ -1,26 +1,20 @@
 package project2adv;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.time.LocalDateTime;
-
 public abstract class Account implements AccountInfo, TransactionHandler {
     protected String accountNum;
     protected double accountBal;
+    protected double startingBalance;
 
     public Account(String accountNum, double accountBal) {
         this.accountNum = accountNum;
         this.accountBal = accountBal;
+        this.startingBalance = accountBal;  // Set starting balance at creation
     }
 
     public abstract void displayAccountInfo();
-    
+
     protected void logTransaction(String logMessage) {
-        try (FileWriter writer = new FileWriter("Atransactions_log.txt", true)) {
-            writer.write(LocalDateTime.now() + " - " + logMessage + "\n");
-        } catch (IOException e) {
-            System.out.println("Error writing to log file.");
-        }
+        TransactionLogger.getInstance().log(logMessage);
     }
 
     @Override
@@ -55,25 +49,43 @@ public abstract class Account implements AccountInfo, TransactionHandler {
     @Override
     public double showBalance() {
         return accountBal;
-    }  
-
-    @Override
-    public void transfer(Customer recipient, double amount) {
-        if (this == recipient.getAccount()) {
-            throw new IllegalArgumentException("Cannot transfer to the same account.");
-        }
-        if (accountBal < amount) {
-            throw new IllegalArgumentException("Insufficient funds for transfer.");
-        }
-        this.withdraw(amount, recipient.getName(), false);
-        recipient.getAccount().deposit(amount, recipient.getName(), false);
-        logTransaction("Transfer of $" + amount + " to " + recipient.getName() + " successful.");
     }
-    
 
     public abstract String getAccountType();
 
     public String getAccountNum() {
         return accountNum;
+    }
+
+    public double getStartingBalance() {
+        return startingBalance;
+    }
+
+    // Additional Method: Reset Starting Balance (for session management)
+    public void resetStartingBalance() {
+        this.startingBalance = accountBal;
+    }
+
+    // Additional Method: Transfer funds to another customer’s account
+    @Override
+    public void transfer(Customer recipient, double amount) {
+        if (recipient == null) {
+            throw new IllegalArgumentException("Recipient cannot be null.");
+        }
+        if (accountBal < amount) {
+            throw new IllegalArgumentException("Insufficient funds for transfer.");
+        }
+
+        // Withdraw from this account
+        this.withdraw(amount, "Transfer", false);
+
+        // Deposit into recipient's checking account by default
+        recipient.getCheckingAccount().deposit(amount, recipient.getName(), false);
+
+        logTransaction("Transferred $" + amount + " to " + recipient.getName() + "'s " 
+            + recipient.getCheckingAccount().getAccountType() + "-" + recipient.getCheckingAccount().getAccountNum() 
+            + ". New Balance: $" + accountBal);
+        
+        System.out.println("Transfer of $" + amount + " to " + recipient.getName() + " successful.");
     }
 }

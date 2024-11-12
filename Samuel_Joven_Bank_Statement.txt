@@ -1,0 +1,21 @@
+----- Bank Statement -----
+Date: 2024-11-12
+
+Customer Information:
+ID: 1002
+Name: Samuel Joven
+Date of Birth: 92929
+Address: 292929
+Phone Number: 2929923
+
+Account Information:
+Checking Account Number: 5004
+Checking Starting Balance: $0.0
+Savings Account Number: 5005
+Savings Starting Balance: $0.0
+Credit Account Number: 5006
+Credit Max: $7898.0
+Credit Starting Balance: $0.0
+
+Transaction History (Current Session):
+No transactions recorded in this session.

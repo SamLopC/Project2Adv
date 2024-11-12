@@ -1,0 +1,12 @@
+Transaction Statement for Samuel 
+Date of Statement: 2024-11-12
+
+Account Information:
+Checking Account Number: 5001
+Saving Account Number: 5002
+Credit Account Number: 5003
+
+Starting Balance: $0.0
+Ending Balance: $0.0
+
+Transaction History:

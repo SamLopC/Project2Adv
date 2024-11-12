@@ -1,0 +1,21 @@
+----- Bank Statement -----
+Date: 2024-11-12
+
+Customer Information:
+ID: 48
+Name: David Baptiste
+Date of Birth: 5-May-98
+Address: "500 W. University Ave, El Paso, TX 79968"
+Phone Number: (915) 747-5011
+
+Account Information:
+Checking Account Number: 1047
+Checking Starting Balance: $1076.98
+Savings Account Number: 2047
+Savings Starting Balance: $3271.72
+Credit Account Number: 3047
+Credit Max: $7772.0
+Credit Starting Balance: $-281.86
+
+Transaction History (Current Session):
+No transactions recorded in this session.

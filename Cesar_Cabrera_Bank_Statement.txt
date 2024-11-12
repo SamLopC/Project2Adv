@@ -1,0 +1,21 @@
+----- Bank Statement -----
+Date: 2024-11-12
+
+Customer Information:
+ID: 45
+Name: Cesar Cabrera
+Date of Birth: 22-Jun-89
+Address: "500 W. University Ave
+Phone Number: 1044
+
+Account Information:
+Checking Account Number: 1806.19
+Checking Starting Balance: $2044.0
+Savings Account Number: 1685.66
+Savings Starting Balance: $3044.0
+Credit Account Number: 9182
+Credit Max: $0.0
+Credit Starting Balance: $-1906.17
+
+Transaction History (Current Session):
+No transactions recorded in this session.

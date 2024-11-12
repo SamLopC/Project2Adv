@@ -1,210 +1,809 @@
 package project2adv;
 
-import java.util.Scanner;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDate;
 
-/**
- * The RunBank class is the main class that runs the banking system for El Paso Miners Bank.
- * It allows users to perform actions like balance inquiry, deposit, withdrawal, and transfer.
- */
 public class RunBank {
-    /**
-     * The main method that runs the interactive bank system for managing customer accounts.
-     *
-     * @param args command-line arguments (not used)
-     */
+    private static final AtomicInteger userIdGenerator = new AtomicInteger(1001); // Starts at 1001
+    private static final AtomicInteger accountNumGenerator = new AtomicInteger(5001); // Starts at 5001
+    private static final Scanner scanner = new Scanner(System.in);
+    
+    // Map to store customers by userID for unique identification
+    private static final Map<Integer, Customer> customers = new HashMap<>();
 
+    public static void createNewUser() {
+        System.out.println("Enter First Name:");
+        String firstName = scanner.nextLine();
+    
+        System.out.println("Enter Last Name:");
+        String lastName = scanner.nextLine();
+    
+        System.out.println("Enter Date of Birth (YYYY-MM-DD):");
+        String dob = scanner.nextLine();
+    
+        System.out.println("Enter Address:");
+        String address = scanner.nextLine();
+    
+        System.out.println("Enter City:");
+        String city = scanner.nextLine();
+    
+        System.out.println("Enter State:");
+        String state = scanner.nextLine();
+    
+        System.out.println("Enter Zip:");
+        String zip = scanner.nextLine();
+    
+        System.out.println("Enter Phone Number:");
+        String phoneNumber = scanner.nextLine();
+    
+        int creditScore = 0;
+        boolean validInput = false;
+    
+        while (!validInput) {
+            System.out.println("Enter Credit Score:");
+            try {
+                creditScore = scanner.nextInt();
+                validInput = true;
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a numeric value for the credit score.");
+                scanner.nextLine();
+            }
+        }
+        scanner.nextLine();
 
-     public static Map<String, String> readCSV(String fileName) {
-        Map<String, String> userInfo = new HashMap<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
-            String headerLine = br.readLine();
-            if (headerLine == null) return userInfo;
-            String[] headers = headerLine.split(",");
-            String line;
+        int userId = userIdGenerator.getAndIncrement();
+        String checkingAccountNum = String.valueOf(accountNumGenerator.getAndIncrement());
+        String savingAccountNum = String.valueOf(accountNumGenerator.getAndIncrement());
+        String creditAccountNum = String.valueOf(accountNumGenerator.getAndIncrement());
+
+        double creditLimit = generateCreditLimit(creditScore);
+
+        Account checking = new Checking(checkingAccountNum, 0.0);
+        Account saving = new Saving(savingAccountNum, 0.0);
+        Account credit = new Credit(creditAccountNum, 0.0, creditLimit);
+
+        Customer newCustomer = new Customer(userId, firstName, lastName, dob, address, city, state, zip, phoneNumber, checking, saving, credit);
+        customers.put(userId, newCustomer);
+
+        System.out.println("New user created successfully!");
+        newCustomer.displayAccountInfo();
+
+        writeCustomerToCSV(newCustomer);
+    }
+
+    private static final String CSV_FILE_PATH = "customers.csv";
+
+    private static void writeCustomerToCSV(Customer customer) {
+        java.io.File file = new java.io.File(CSV_FILE_PATH);
+        
+        try {
+            boolean isNewFile = !file.exists() && file.createNewFile();
+    
+            try (FileWriter writer = new FileWriter(file, true)) {
+                if (isNewFile) {
+                    writer.append("User ID,Name,DOB,Address,City,State,Zip,Phone Number,Checking Account,Checking Balance,Saving Account,Saving Balance,Credit Account,Credit Balance,Credit Limit\n");
+                }
+    
+                writer.append(String.valueOf(customer.getUserID())).append(",");
+                writer.append(customer.getName()).append(",");
+                writer.append(customer.getDob()).append(",");
+                writer.append(customer.getAddress()).append(",");
+                writer.append(customer.getCity()).append(",");
+                writer.append(customer.getState()).append(",");
+                writer.append(customer.getZip()).append(",");
+                writer.append(customer.getPhoneNumber()).append(",");
+                writer.append(customer.getCheckingAccount().getAccountNum()).append(",");
+                writer.append(String.valueOf(customer.getCheckingAccount().showBalance())).append(",");
+                writer.append(customer.getSavingAccount().getAccountNum()).append(",");
+                writer.append(String.valueOf(customer.getSavingAccount().showBalance())).append(",");
+                writer.append(customer.getCreditAccount().getAccountNum()).append(",");
+                writer.append(String.valueOf(customer.getCreditAccount().showBalance())).append(",");
+                writer.append(String.valueOf(((Credit) customer.getCreditAccount()).getCreditLimit())).append("\n");
+    
+                System.out.println("Customer details saved to CSV successfully.");
+            }
+        } catch (IOException e) {
+            System.out.println("Error writing to CSV file.");
+            e.printStackTrace();
+        }
+    }
+    
+    private static void loadCustomersFromCSV() {
+        System.out.println("Current working directory: " + System.getProperty("user.dir"));
+        try (BufferedReader br = new BufferedReader(new FileReader(CSV_FILE_PATH))) {
+            String line = br.readLine();  // Skip header
             while ((line = br.readLine()) != null) {
                 String[] data = line.split(",");
-                for (int i = 0; i < headers.length; i++) {
-                    userInfo.put(headers[i], data[i]);
+                int userID = Integer.parseInt(data[0]);
+                String[] nameParts = data[1].split(" ");
+                String firstName = nameParts[0];
+                String lastName = nameParts.length > 1 ? nameParts[1] : "";
+                String dob = data[2];
+                String address = data[3];
+                String city = data[4];
+                String state = data[5];
+                String zip = data[6];
+                String phoneNumber = data[7];
+                
+                String checkingAccountNum = data[8];
+                double checkingBalance = Double.parseDouble(data[9]);
+                Account checking = new Checking(checkingAccountNum, checkingBalance);
+    
+                String savingAccountNum = data[10];
+                double savingBalance = Double.parseDouble(data[11]);
+                Account saving = new Saving(savingAccountNum, savingBalance);
+    
+                String creditAccountNum = data[12];
+                double creditBalance = Double.parseDouble(data[13]);
+                double creditLimit = Double.parseDouble(data[14]);
+                Account credit = new Credit(creditAccountNum, creditBalance, creditLimit);
+    
+                Customer customer = new Customer(userID, firstName, lastName, dob, address, city, state, zip, phoneNumber, checking, saving, credit);
+                customers.put(userID, customer);
+    
+                userIdGenerator.set(Math.max(userIdGenerator.get(), userID + 1));
+                accountNumGenerator.set(Math.max(accountNumGenerator.get(), Integer.parseInt(creditAccountNum) + 1));
+            }
+            System.out.println("Customers loaded successfully from CSV.");
+        } catch (IOException e) {
+            System.out.println("Error reading from CSV file.");
+            e.printStackTrace();
+        } catch (NumberFormatException e) {
+            System.out.println("Error parsing customer data from CSV file.");
+            e.printStackTrace();
+        }
+    }
+
+        public static void generateTransactionStatement(Customer customer) {
+        String fileName = customer.getFirstName() + "_" + customer.getLastName() + "_Transaction_Statement.txt";
+        try (FileWriter writer = new FileWriter(fileName)) {
+            writer.write("Transaction Statement for " + customer.getFirstName() + " " + customer.getLastName() + "\n");
+            writer.write("Date of Statement: " + LocalDate.now() + "\n\n");
+            
+            // Account information
+            writer.write("Account Information:\n");
+            writer.write("Checking Account Number: " + customer.getCheckingAccount().getAccountNum() + "\n");
+            writer.write("Saving Account Number: " + customer.getSavingAccount().getAccountNum() + "\n");
+            writer.write("Credit Account Number: " + customer.getCreditAccount().getAccountNum() + "\n\n");
+            
+            // Balances
+            writer.write("Starting Balance: $" + customer.getCheckingAccount().getStartingBalance() + "\n");
+            writer.write("Ending Balance: $" + customer.getCheckingAccount().showBalance() + "\n\n");
+
+            // Transaction history
+            writer.write("Transaction History:\n");
+            List<String> transactionHistory = TransactionLogger.getInstance().getTransactionHistory();
+            for (String transaction : transactionHistory) {
+                writer.write(transaction + "\n");
+            }
+            
+            System.out.println("Transaction statement generated: " + fileName);
+        } catch (IOException e) {
+            System.out.println("Error writing transaction statement.");
+            e.printStackTrace();
+        }
+    }
+
+    public static Customer searchCustomerByFirstName(String firstName) {
+        List<Customer> matches = new ArrayList<>();
+        for (Customer customer : customers.values()) {
+            if (customer.getFirstName().equalsIgnoreCase(firstName)) {
+                matches.add(customer);
+            }
+        }
+        return handleSearchResults(matches);
+    }
+
+    public static Customer searchCustomerByLastName(String lastName) {
+        List<Customer> matches = new ArrayList<>();
+        for (Customer customer : customers.values()) {
+            if (customer.getLastName().equalsIgnoreCase(lastName)) {
+                matches.add(customer);
+            }
+        }
+        return handleSearchResults(matches);
+    }
+
+    private static Customer handleSearchResults(List<Customer> matches) {
+        if (matches.isEmpty()) {
+            System.out.println("No customer found.");
+            return null;
+        } else if (matches.size() == 1) {
+            return matches.get(0);
+        } else {
+            System.out.println("Multiple customers found. Please choose one:");
+            for (int i = 0; i < matches.size(); i++) {
+                System.out.println((i + 1) + ". " + matches.get(i).getFirstName() + " " + matches.get(i).getLastName() + " (User ID: " + matches.get(i).getUserID() + ")");
+            }
+            System.out.print("Enter choice: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine();  // Consume newline left-over
+            return matches.get(choice - 1);
+        }
+    }
+
+    public static void inquireBalance() {
+        Customer customer = findCustomerByName();
+        if (customer != null) {
+            customer.displayAccountInfo();
+        } else {
+            System.out.println("Customer not found.");
+        }
+    }
+
+    public static void depositMoney() {
+        Customer customer = findCustomerByName();
+        if (customer != null) {
+            System.out.println("Enter amount to deposit:");
+            double depositAmount = scanner.nextDouble();
+            scanner.nextLine();  // Clear input buffer
+            customer.depositMoney(depositAmount);
+        } else {
+            System.out.println("Customer not found.");
+        }
+    }
+
+    public static void withdrawMoney() {
+        Customer customer = findCustomerByName();
+        if (customer != null) {
+            System.out.println("Enter amount to withdraw:");
+            double withdrawAmount = scanner.nextDouble();
+            scanner.nextLine();  // Clear input buffer
+            customer.withdrawMoney(withdrawAmount);
+        } else {
+            System.out.println("Customer not found.");
+        }
+    }
+
+    public static void transferMoney() {
+        System.out.println("Enter sender's information:");
+        Customer sender = findCustomerByName();
+
+        System.out.println("Enter recipient's information:");
+        Customer recipient = findCustomerByName();
+
+        if (sender != null && recipient != null) {
+            System.out.println("Enter transfer amount:");
+            double transferAmount = scanner.nextDouble();
+            scanner.nextLine();  // Clear input buffer
+            sender.transferMoney(recipient, transferAmount);
+        } else {
+            System.out.println("Sender or recipient not found.");
+        }
+    }
+
+    public static void paySomeone() {
+        System.out.println("Enter payer's information:");
+        Customer payer = findCustomerByName();
+
+        System.out.println("Enter recipient's information:");
+        Customer recipient = findCustomerByName();
+
+        if (payer != null && recipient != null) {
+            System.out.println("Enter payment amount:");
+            double payAmount = scanner.nextDouble();
+            scanner.nextLine();  // Clear input buffer
+            payer.paySomeone(recipient, payAmount);
+        } else {
+            System.out.println("Payer or recipient not found.");
+        }
+    }
+
+    private static Customer findCustomerByName() {
+        System.out.println("Search by (1) First Name or (2) Last Name:");
+        String searchType = scanner.nextLine().trim();
+        Customer customer = null;
+        
+        if (searchType.equals("1")) {
+            System.out.println("Enter First Name:");
+            String firstName = scanner.nextLine().trim();
+            customer = searchCustomerByFirstName(firstName);
+        } else if (searchType.equals("2")) {
+            System.out.println("Enter Last Name:");
+            String lastName = scanner.nextLine().trim();
+            customer = searchCustomerByLastName(lastName);
+        } else {
+            System.out.println("Invalid input.");
+        }
+        
+        return customer;
+    }
+
+    private static double generateCreditLimit(int creditScore) {
+        Random random = new Random();
+        if (creditScore <= 580) {
+            return 100 + random.nextInt(600);
+        } else if (creditScore <= 669) {
+            return 700 + random.nextInt(4300);
+        } else if (creditScore <= 739) {
+            return 5000 + random.nextInt(2500);
+        } else if (creditScore <= 799) {
+            return 7500 + random.nextInt(8500);
+        } else {
+            return 16000 + random.nextInt(9000);
+        }
+    }
+    
+    private static Customer findCustomerByNameOrId() {
+        System.out.println("Search by (1) Name or (2) ID:");
+        String searchType = scanner.nextLine().trim();
+
+        if ("1".equals(searchType)) {
+            System.out.print("Enter First Name: ");
+            String firstName = scanner.nextLine().trim();
+            System.out.print("Enter Last Name: ");
+            String lastName = scanner.nextLine().trim();
+            return findCustomer(firstName, lastName);
+        } else if ("2".equals(searchType)) {
+            System.out.print("Enter User ID: ");
+            try {
+                int userId = Integer.parseInt(scanner.nextLine().trim());
+                return customers.get(userId);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid ID format.");
+            }
+        }
+        return null;
+    }
+
+    private static final String MANAGER_PASSWORD = "secret"; // Define the manager password
+
+    private static void bankManagerAccess() {
+        System.out.print("Enter Bank Manager Password: ");
+        String inputPassword = scanner.nextLine().trim();
+    
+        if (inputPassword.equals(MANAGER_PASSWORD)) {
+            System.out.println("Access granted. Welcome Bank Manager! Choose an option:");
+            System.out.println("A. Inquire account by name.");
+            System.out.println("B. Inquire account by type/number.");
+            System.out.println("C. Process transactions from file.");
+            System.out.println("D. Generate bank statement for a user.");
+    
+            String managerChoice = scanner.nextLine().trim().toUpperCase();
+    
+            switch (managerChoice) {
+                case "A":
+                    inquireAccountByName();
+                    break;
+                case "B":
+                    inquireAccountByTypeAndNumber();
+                    break;
+                case "C":
+                    processTransactionsFromFile("Transactions.csv");
+                    break;
+                case "D":
+                    System.out.println("Enter customer name or ID to generate statement:");
+                    Customer customer = findCustomerByNameOrId();
+                    if (customer != null) {
+                        generateBankStatement(customer);
+                    } else {
+                        System.out.println("Customer not found.");
+                    }
+                    break;
+                default:
+                    System.out.println("Invalid option. Returning to main menu.");
+                    break;
+            }
+        } else {
+            System.out.println("Access denied. Incorrect password.");
+        }
+    }
+    
+
+    private static void inquireAccountByName() {
+        System.out.println("Whose account would you like to inquire about?");
+        String managerCustomerName = scanner.nextLine().trim();
+    
+        // Loop through the customers map and check names
+        for (Customer customer : customers.values()) {
+            if (customer.getFirstName().equalsIgnoreCase(managerCustomerName)) {
+                customer.displayAccountInfo();
+                return;
+            }
+        }
+        System.out.println("No customer found with the name: " + managerCustomerName);
+    }
+
+    private static void inquireAccountByTypeAndNumber() {
+        System.out.println("What is the account type? (Checking/Saving/Credit)");
+        String accountType = scanner.nextLine().trim();
+        System.out.println("Enter the account number:");
+        String accountNumber = scanner.nextLine().trim();
+    
+        // Loop through all customers to find the account by type and number
+        for (Customer customer : customers.values()) {
+            Account account = getAccountByType(customer, accountType);
+            if (account != null && account.getAccountNum().equals(accountNumber)) {
+                System.out.println("Account found for customer: " + customer.getFirstName() + " " + customer.getLastName());
+                customer.displayAccountInfo();
+                return;
+            }
+        }
+        System.out.println("No account found with type " + accountType + " and account number " + accountNumber);
+    }
+
+    
+    //Bank Statement
+
+        // Generate a Bank Statement for a specific user (only accessible by manager)
+        public static void generateBankStatement(Customer customer) {
+            // Set the file name as "[FirstName_LastName]_Bank_Statement.txt"
+            String fileName = customer.getFirstName() + "_" + customer.getLastName() + "_Bank_Statement.txt";
+            
+            try (FileWriter writer = new FileWriter(fileName)) {
+                // Write header information for the bank statement
+                writer.write("----- Bank Statement -----\n");
+                writer.write("Date: " + LocalDate.now() + "\n\n");
+    
+                // Write customer information
+                writer.write("Customer Information:\n");
+                writer.write("ID: " + customer.getUserID() + "\n");
+                writer.write("Name: " + customer.getFirstName() + " " + customer.getLastName() + "\n");
+                writer.write("Date of Birth: " + customer.getDob() + "\n");
+                writer.write("Address: " + customer.getAddress() + "\n");
+                writer.write("Phone Number: " + customer.getPhoneNumber() + "\n\n");
+    
+                // Write account information
+                writer.write("Account Information:\n");
+                writer.write("Checking Account Number: " + customer.getCheckingAccount().getAccountNum() + "\n");
+                writer.write("Checking Starting Balance: $" + customer.getCheckingAccount().getStartingBalance() + "\n");
+                writer.write("Savings Account Number: " + customer.getSavingAccount().getAccountNum() + "\n");
+                writer.write("Savings Starting Balance: $" + customer.getSavingAccount().getStartingBalance() + "\n");
+                writer.write("Credit Account Number: " + customer.getCreditAccount().getAccountNum() + "\n");
+                writer.write("Credit Max: $" + ((Credit) customer.getCreditAccount()).getCreditLimit() + "\n");
+                writer.write("Credit Starting Balance: $" + customer.getCreditAccount().getStartingBalance() + "\n\n");
+    
+                // Write transaction history
+                writer.write("Transaction History (Current Session):\n");
+                List<String> transactionHistory = TransactionLogger.getInstance().getTransactionHistory(); // Assuming you have session-based transaction tracking
+                if (transactionHistory.isEmpty()) {
+                    writer.write("No transactions recorded in this session.\n");
+                } else {
+                    for (String transaction : transactionHistory) {
+                        writer.write(transaction + "\n");
+                    }
+                }
+    
+                System.out.println("Bank statement generated: " + fileName);
+            } catch (IOException e) {
+                System.out.println("Error writing bank statement.");
+                e.printStackTrace();
+            }
+        }
+
+    //new bank manager CSV 
+    public static void processTransactionsFromFile(String transactionFilePath) {
+        try (BufferedReader br = new BufferedReader(new FileReader(transactionFilePath))) {
+            String line = br.readLine();  // Skip the header line
+            
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                
+                // Check if the array length meets the expected number of fields
+                if (data.length < 8) {
+                    System.out.println("Transaction skipped due to incomplete data: " + line);
+                    continue;
+                }
+
+                String fromFirstName = data[0].trim();
+                String fromLastName = data[1].trim();
+                String fromWhere = data[2].trim();
+                String action = data[3].trim().toLowerCase();
+                String toFirstName = data[4].trim();
+                String toLastName = data[5].trim();
+                String toWhere = data[6].trim();
+                double amount = 0.0;
+
+                // Attempt to parse the amount, if present
+                try {
+                    if (!data[7].trim().isEmpty()) {
+                        amount = Double.parseDouble(data[7].trim());
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid amount in transaction: " + line);
+                    continue;
+                }
+
+                // Execute the action based on the type of transaction
+                switch (action) {
+                    case "pays":
+                        handlePaysTransaction(fromFirstName, fromLastName, fromWhere, toFirstName, toLastName, toWhere, amount);
+                        break;
+                    case "transfers":
+                        handleTransfersTransaction(fromFirstName, fromLastName, fromWhere, toWhere, amount);
+                        break;
+                    case "inquires":
+                        handleInquiresTransaction(fromFirstName, fromLastName, fromWhere);
+                        break;
+                    case "withdraws":
+                        handleWithdrawsTransaction(fromFirstName, fromLastName, fromWhere, amount);
+                        break;
+                    case "deposits":
+                        handleDepositsTransaction(toFirstName, toLastName, toWhere, amount);
+                        break;
+                    default:
+                        System.out.println("Unknown action: " + action + " in transaction: " + line);
+                        break;
                 }
             }
         } catch (IOException e) {
+            System.out.println("Error reading transactions file: " + e.getMessage());
+        }
+    }
+    
+    // Updated findCustomer method to check both specified files for customer data
+    private static Customer findCustomer(String firstName, String lastName) {
+        System.out.println("Attempting to find customer: " + firstName + " " + lastName);
+        Customer customer = getCustomerFromFile("CS3331-BankUsers.csv", firstName, lastName);
+        
+        if (customer == null) {
+            System.out.println("Customer " + firstName + " " + lastName + " not found in CS3331-BankUsers.csv. Searching in customers.csv...");
+            customer = getCustomerFromFile("customers.csv", firstName, lastName);
+        }
+    
+        if (customer == null) {
+            System.out.println("Customer " + firstName + " " + lastName + " not found in either file.");
+        } else {
+            System.out.println("Customer found: " + customer.getFirstName() + " " + customer.getLastName());
+        }
+        
+        return customer;
+    }
+    
+
+    private static Customer getCustomerFromFile(String fileName, String firstName, String lastName) {
+        System.out.println("Searching for customer in file: " + fileName);
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line = br.readLine();  // Skip header line
+            
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                
+                // Adjust parsing based on file format
+                boolean isBankUsersFile = fileName.equals("CS3331-BankUsers.csv");
+                int requiredLength = isBankUsersFile ? 13 : 15;
+                
+                if (data.length < requiredLength) {
+                    System.out.println("Skipping incomplete line: " + line);
+                    continue;
+                }
+    
+                // Extract first and last names based on file format
+                String fileFirstName, fileLastName;
+                if (isBankUsersFile) {
+                    fileFirstName = data[1].trim(); // CS3331-BankUsers.csv has separate first name
+                    fileLastName = data[2].trim();  // and last name columns
+                } else {
+                    // customers.csv has full name in one field (data[1]), split it
+                    String[] nameParts = data[1].trim().split(" ");
+                    if (nameParts.length < 2) {
+                        System.out.println("Skipping line with incomplete name: " + line);
+                        continue;
+                    }
+                    fileFirstName = nameParts[0];
+                    fileLastName = nameParts[1];
+                }
+    
+                if (fileFirstName.equalsIgnoreCase(firstName) && fileLastName.equalsIgnoreCase(lastName)) {
+                    System.out.println("Customer " + firstName + " " + lastName + " found in file: " + fileName);
+                    
+                    // Parse fields according to format
+                    int userID = Integer.parseInt(data[0].trim());
+                    String dob = data[isBankUsersFile ? 3 : 2].trim();
+                    String address = data[isBankUsersFile ? 4 : 3].trim();
+                    String city = data[isBankUsersFile ? 5 : 4].trim();
+                    String state = data[isBankUsersFile ? 6 : 5].trim();
+                    String zip = data[isBankUsersFile ? 7 : 6].trim();
+                    String phoneNumber = data[isBankUsersFile ? 8 : 7].trim();
+    
+                    // Accounts (Checking, Savings, Credit)
+                    String checkingAccountNum = data[isBankUsersFile ? 9 : 8].trim();
+                    double checkingBalance = Double.parseDouble(data[isBankUsersFile ? 10 : 9].trim());
+                    Account checking = new Checking(checkingAccountNum, checkingBalance);
+    
+                    String savingAccountNum = data[isBankUsersFile ? 11 : 10].trim();
+                    double savingBalance = Double.parseDouble(data[isBankUsersFile ? 12 : 11].trim());
+                    Account saving = new Saving(savingAccountNum, savingBalance);
+    
+                    // For credit account, handle cases where fields may be missing
+                    String creditAccountNum = data.length > (isBankUsersFile ? 13 : 12) ? data[isBankUsersFile ? 13 : 12].trim() : "";
+                    double creditBalance = 0.0;
+                    double creditLimit = 0.0;
+                    try {
+                        creditBalance = data.length > (isBankUsersFile ? 14 : 13) ? Double.parseDouble(data[isBankUsersFile ? 14 : 13].trim()) : 0.0;
+                        creditLimit = data.length > (isBankUsersFile ? 15 : 14) ? Double.parseDouble(data[isBankUsersFile ? 15 : 14].trim()) : 0.0;
+                    } catch (NumberFormatException e) {
+                        System.out.println("Skipping credit fields due to format issue: " + line);
+                    }
+                    Account credit = new Credit(creditAccountNum, creditBalance, creditLimit);
+    
+                    return new Customer(userID, fileFirstName, fileLastName, dob, address, city, state, zip, phoneNumber, checking, saving, credit);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading from file: " + fileName);
+            e.printStackTrace();
+        } catch (NumberFormatException e) {
+            System.out.println("Error parsing customer data from file: " + fileName);
             e.printStackTrace();
         }
-        return userInfo;
+        System.out.println("Customer " + firstName + " " + lastName + " not found in file: " + fileName);
+        return null;
     }
+    
+    
+    
+
+    // Transaction handling methods...
+
+    private static void handlePaysTransaction(String fromFirstName, String fromLastName, String fromWhere,
+                                              String toFirstName, String toLastName, String toWhere, double amount) {
+        Customer payer = findCustomer(fromFirstName, fromLastName);
+        Customer payee = findCustomer(toFirstName, toLastName);
+
+        if (payer == null || payee == null) {
+            System.out.println("Transaction failed: Payer or payee not found.");
+            return;
+        }
+
+        Account fromAccount = getAccountByType(payer, fromWhere);
+        Account toAccount = getAccountByType(payee, toWhere);
+
+        if (fromAccount != null && toAccount != null) {
+            try {
+                fromAccount.withdraw(amount, payer.getName(), false);
+                toAccount.deposit(amount, payee.getName(), false);
+                System.out.println("Transaction successful: " + fromFirstName + " paid " + toFirstName + " $" + amount);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Transaction failed: " + e.getMessage());
+            }
+        } else {
+            System.out.println("Transaction failed: Account not found.");
+        }
+    }
+
+    private static void handleTransfersTransaction(String firstName, String lastName, String fromWhere, String toWhere, double amount) {
+        Customer customer = findCustomer(firstName, lastName);
+        if (customer == null) {
+            System.out.println("Transaction failed: Customer not found.");
+            return;
+        }
+
+        Account fromAccount = getAccountByType(customer, fromWhere);
+        Account toAccount = getAccountByType(customer, toWhere);
+
+        if (fromAccount != null && toAccount != null) {
+            try {
+                fromAccount.withdraw(amount, customer.getName(), false);
+                toAccount.deposit(amount, customer.getName(), false);
+                System.out.println("Transaction successful: Transferred $" + amount + " from " + fromWhere + " to " + toWhere);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Transaction failed: " + e.getMessage());
+            }
+        } else {
+            System.out.println("Transaction failed: Account not found.");
+        }
+    }
+
+    private static void handleInquiresTransaction(String firstName, String lastName, String fromWhere) {
+        Customer customer = findCustomer(firstName, lastName);
+        if (customer == null) {
+            System.out.println("Inquiry failed: Customer not found.");
+            return;
+        }
+
+        Account account = getAccountByType(customer, fromWhere);
+        if (account != null) {
+            System.out.println("Balance inquiry: " + fromWhere + " balance is $" + account.showBalance());
+        } else {
+            System.out.println("Inquiry failed: Account not found.");
+        }
+    }
+
+    private static void handleWithdrawsTransaction(String firstName, String lastName, String fromWhere, double amount) {
+        Customer customer = findCustomer(firstName, lastName);
+        if (customer == null) {
+            System.out.println("Transaction failed: Customer not found.");
+            return;
+        }
+
+        Account account = getAccountByType(customer, fromWhere);
+        if (account != null) {
+            try {
+                account.withdraw(amount, customer.getName(), false);
+                System.out.println("Transaction successful: Withdrew $" + amount + " from " + fromWhere);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Transaction failed: " + e.getMessage());
+            }
+        } else {
+            System.out.println("Transaction failed: Account not found.");
+        }
+    }
+
+    private static void handleDepositsTransaction(String firstName, String lastName, String toWhere, double amount) {
+        Customer customer = findCustomer(firstName, lastName);
+        if (customer == null) {
+            System.out.println("Transaction failed: Customer not found.");
+            return;
+        }
+
+        Account account = getAccountByType(customer, toWhere);
+        if (account != null) {
+            account.deposit(amount, customer.getName(), false);
+            System.out.println("Transaction successful: Deposited $" + amount + " to " + toWhere);
+        } else {
+            System.out.println("Transaction failed: Account not found.");
+        }
+    }
+
+    // Helper method to get the account based on type
+    private static Account getAccountByType(Customer customer, String accountType) {
+        switch (accountType.toLowerCase()) {
+            case "checking":
+                return customer.getCheckingAccount();
+            case "saving":
+            case "savings":
+                return customer.getSavingAccount();
+            case "credit":
+                return customer.getCreditAccount();
+            default:
+                System.out.println("Unknown account type: " + accountType);
+                return null;
+        }
+    }
+
     public static void main(String[] args) {
-        // Creating Checking, Saving, and Credit Accounts for each customer
-        Checking checkingAcc1 = new Checking("12345", 500.00);  // Mickey's Checking
-        Saving savingAcc1 = new Saving("54321", 1000.00);       // Donald's Saving
-        Credit creditAcc1 = new Credit("67890", -50.00, 1000.00); // Goofy's Credit
-        Saving savingAcc2 = new Saving("13579", 1500.00);       // Minnie's Saving
-        Checking checkingAcc2 = new Checking("24680", 750.00);  // Daisy's Checking
-        Credit creditAcc2 = new Credit("98765", -100.00, 1500.00); // Pluto's Credit
-
-        // Creating Customers
-        Customer customer1 = new Customer("Mickey Mouse", checkingAcc1);
-        Customer customer2 = new Customer("Donald Duck", savingAcc1);
-        Customer customer3 = new Customer("Goofy", creditAcc1);
-        Customer customer4 = new Customer("Minnie Mouse", savingAcc2);
-        Customer customer5 = new Customer("Daisy Duck", checkingAcc2);
-        Customer customer6 = new Customer("Pluto", creditAcc2);
-
-        Scanner scanner = new Scanner(System.in);
+        loadCustomersFromCSV();  // Load customers at the beginning of the program
         String action;
 
-        // Start user interaction loop
         do {
-            System.out.println("Welcome to El Paso Miners Bank! Please choose an option:");
+            System.out.println("Welcome to El Paso Miners Bank! Choose an option:");
             System.out.println("1. Inquire Balance");
             System.out.println("2. Deposit Money");
             System.out.println("3. Withdraw Money");
             System.out.println("4. Transfer Money");
             System.out.println("5. Pay Someone");
             System.out.println("6. Bank Manager Access");
+            System.out.println("7. Create New User");
+            System.out.println("8. Generate Transaction Statement");
             System.out.println("Type EXIT to leave.");
 
             action = scanner.nextLine().trim().toUpperCase();
 
             switch (action) {
-                case "1":  // Inquire balance
-                    System.out.println("Which customer are you (Mickey, Donald, Goofy, Minnie, Daisy, Pluto)?");
-                    String customerName = scanner.nextLine().trim();
-                    if (customerName.equalsIgnoreCase("Mickey")) {
-                        customer1.displayAccountInfo();
-                    } else if (customerName.equalsIgnoreCase("Donald")) {
-                        customer2.displayAccountInfo();
-                    } else if (customerName.equalsIgnoreCase("Goofy")) {
-                        customer3.displayAccountInfo();
-                    } else if (customerName.equalsIgnoreCase("Minnie")) {
-                        customer4.displayAccountInfo();
-                    } else if (customerName.equalsIgnoreCase("Daisy")) {
-                        customer5.displayAccountInfo();
-                    } else if (customerName.equalsIgnoreCase("Pluto")) {
-                        customer6.displayAccountInfo();
+                case "1":
+                    inquireBalance();
+                    break;
+                case "2":
+                    depositMoney();
+                    break;
+                case "3":
+                    withdrawMoney();
+                    break;
+                case "4":
+                    transferMoney();
+                    break;
+                case "5":
+                    paySomeone();
+                    break;
+                case "6":
+                    bankManagerAccess();
+                    break;
+                case "7":
+                    createNewUser();
+                    break;
+                case "8":
+                    System.out.println("Enter customer name to generate statement:");
+                    Customer customer = findCustomerByName();
+                    if (customer != null) {
+                        generateTransactionStatement(customer);
                     }
                     break;
-
-                case "2":  // Deposit Money
-                    System.out.println("Which customer are you (Mickey, Donald, Goofy, Minnie, Daisy, Pluto)?");
-                    customerName = scanner.nextLine().trim();
-                    System.out.println("Enter amount to deposit:");
-                    double depositAmount = scanner.nextDouble();
-                    scanner.nextLine();  // Clear input buffer
-                    if (customerName.equalsIgnoreCase("Mickey")) {
-                        customer1.depositMoney(depositAmount);
-                    } else if (customerName.equalsIgnoreCase("Donald")) {
-                        customer2.depositMoney(depositAmount);
-                    } else if (customerName.equalsIgnoreCase("Goofy")) {
-                        customer3.depositMoney(depositAmount);
-                    } else if (customerName.equalsIgnoreCase("Minnie")) {
-                        customer4.depositMoney(depositAmount);
-                    } else if (customerName.equalsIgnoreCase("Daisy")) {
-                        customer5.depositMoney(depositAmount);
-                    } else if (customerName.equalsIgnoreCase("Pluto")) {
-                        customer6.depositMoney(depositAmount);
-                    }
-                    break;
-
-                case "3":  // Withdraw Money
-                    System.out.println("Which customer are you (Mickey, Donald, Goofy, Minnie, Daisy, Pluto)?");
-                    customerName = scanner.nextLine().trim();
-                    System.out.println("Enter amount to withdraw:");
-                    double withdrawAmount = scanner.nextDouble();
-                    scanner.nextLine();  // Clear input buffer
-                    if (customerName.equalsIgnoreCase("Mickey")) {
-                        customer1.withdrawMoney(withdrawAmount);
-                    } else if (customerName.equalsIgnoreCase("Donald")) {
-                        customer2.withdrawMoney(withdrawAmount);
-                    } else if (customerName.equalsIgnoreCase("Goofy")) {
-                        customer3.withdrawMoney(withdrawAmount);
-                    } else if (customerName.equalsIgnoreCase("Minnie")) {
-                        customer4.withdrawMoney(withdrawAmount);
-                    } else if (customerName.equalsIgnoreCase("Daisy")) {
-                        customer5.withdrawMoney(withdrawAmount);
-                    } else if (customerName.equalsIgnoreCase("Pluto")) {
-                        customer6.withdrawMoney(withdrawAmount);
-                    }
-                    break;
-
-                case "4":  // Transfer Money
-                    System.out.println("Who is sending the money (Mickey, Donald, Goofy, Minnie, Daisy, Pluto)?");
-                    String sender = scanner.nextLine().trim();
-                    System.out.println("Who is receiving the money (Mickey, Donald, Goofy, Minnie, Daisy, Pluto)?");
-                    String recipient = scanner.nextLine().trim();
-                    System.out.println("Enter transfer amount:");
-                    double transferAmount = scanner.nextDouble();
-                    scanner.nextLine();  // Clear input buffer
-
-                    if (sender.equalsIgnoreCase("Mickey") && recipient.equalsIgnoreCase("Donald")) {
-                        customer1.transferMoney(customer2, transferAmount);
-                    } else if (sender.equalsIgnoreCase("Mickey") && recipient.equalsIgnoreCase("Goofy")) {
-                        customer1.transferMoney(customer3, transferAmount);
-                    } else if (sender.equalsIgnoreCase("Donald") && recipient.equalsIgnoreCase("Mickey")) {
-                        customer2.transferMoney(customer1, transferAmount);
-                    } else if (sender.equalsIgnoreCase("Donald") && recipient.equalsIgnoreCase("Goofy")) {
-                        customer2.transferMoney(customer3, transferAmount);
-                    } // Add more if-else cases for other customers if needed
-                    break;
-
-                case "5":  // Pay Someone
-                    System.out.println("Who is paying (Mickey, Donald, Goofy, Minnie, Daisy, Pluto)?");
-                    sender = scanner.nextLine().trim();
-                    System.out.println("Who are you paying (Mickey, Donald, Goofy, Minnie, Daisy, Pluto)?");
-                    recipient = scanner.nextLine().trim();
-                    System.out.println("Enter payment amount:");
-                    double payAmount = scanner.nextDouble();
-                    scanner.nextLine();  // Clear input buffer
-
-                    if (sender.equalsIgnoreCase("Mickey") && recipient.equalsIgnoreCase("Donald")) {
-                        customer1.paySomeone(customer2, payAmount);
-                    } else if (sender.equalsIgnoreCase("Mickey") && recipient.equalsIgnoreCase("Goofy")) {
-                        customer1.paySomeone(customer3, payAmount);
-                    } // Add more if-else cases for other customers if needed
-                    break;
-
-                case "6":  // Bank Manager Access
-                    System.out.println("Welcome Bank Manager! How would you like to inquire?");
-                    System.out.println("A. Inquire account by name.");
-                    System.out.println("B. Inquire account by type/number.");
-                    String managerChoice = scanner.nextLine().trim().toUpperCase();
-
-                    if (managerChoice.equals("A")) {
-                        System.out.println("Whose account would you like to inquire about?");
-                        String managerCustomerName = scanner.nextLine().trim();
-                        if (managerCustomerName.equalsIgnoreCase("Mickey")) {
-                            customer1.displayAccountInfo();
-                        } else if (managerCustomerName.equalsIgnoreCase("Donald")) {
-                            customer2.displayAccountInfo();
-                        } else if (managerCustomerName.equalsIgnoreCase("Goofy")) {
-                            customer3.displayAccountInfo();
-                        } else if (managerCustomerName.equalsIgnoreCase("Minnie")) {
-                            customer4.displayAccountInfo();
-                        } else if (managerCustomerName.equalsIgnoreCase("Daisy")) {
-                            customer5.displayAccountInfo();
-                        } else if (managerCustomerName.equalsIgnoreCase("Pluto")) {
-                            customer6.displayAccountInfo();
-                        }
-                    } else if (managerChoice.equals("B")) {
-                        System.out.println("What is the account type? (Checking/Saving/Credit)");
-                        String accountType = scanner.nextLine().trim();
-                        System.out.println("Enter the account number:");
-                        String accountNumber = scanner.nextLine().trim();
-
-                        if (accountType.equalsIgnoreCase("Checking") && accountNumber.equals("12345")) {
-                            customer1.displayAccountInfo();
-                        } else if (accountType.equalsIgnoreCase("Saving") && accountNumber.equals("54321")) {
-                            customer2.displayAccountInfo();
-                        } else if (accountType.equalsIgnoreCase("Credit") && accountNumber.equals("67890")) {
-                            customer3.displayAccountInfo();
-                        }
-                    }
-                    break;
-
                 default:
                     if (!action.equals("EXIT")) {
                         System.out.println("Invalid option. Please try again.");
@@ -213,6 +812,5 @@ public class RunBank {
         } while (!action.equals("EXIT"));
 
         System.out.println("Thank you for using El Paso Miners Bank. Goodbye!");
-        scanner.close();
     }
 }

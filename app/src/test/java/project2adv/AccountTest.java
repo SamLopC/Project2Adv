@@ -41,8 +41,9 @@ public class AccountTest {
     // Test for successful transfer between accounts
     @Test
     public void testTransferFundsBetweenAccounts() {
-        Customer sender = new Customer("Alice", checkingAccount);
-        Customer recipient = new Customer("Bob", savingAccount);
+        Customer sender = new Customer("Alice", "1990-01-01", "123 Main St", "CityName", "StateName", "12345", "1234567890", checkingAccount, savingAccount, creditAccount);
+        Customer recipient = new Customer("Bob", "1985-05-05", "456 Side St", "CityName", "StateName", "67890", "0987654321", checkingAccount, savingAccount, creditAccount);
+        
 
         sender.transferMoney(recipient, 200.0);
         assertEquals(300.0, checkingAccount.showBalance(), "Sender's balance should decrease by transfer amount.");
@@ -52,8 +53,9 @@ public class AccountTest {
     // Test for transfer with insufficient funds
     @Test
     public void testTransferInsufficientFunds() {
-        Customer sender = new Customer("Alice", checkingAccount);
-        Customer recipient = new Customer("Bob", savingAccount);
+        Customer sender = new Customer("Alice", "1990-01-01", "123 Main St", "CityName", "StateName", "12345", "1234567890", checkingAccount, savingAccount, creditAccount);
+        Customer recipient = new Customer("Bob", "1985-05-05", "456 Side St", "CityName", "StateName", "67890", "0987654321", checkingAccount, savingAccount, creditAccount);
+        
 
         assertThrows(IllegalArgumentException.class, () -> sender.transferMoney(recipient, 600.0),
             "Transfer with insufficient funds should throw IllegalArgumentException.");
