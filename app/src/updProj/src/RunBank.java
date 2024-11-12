@@ -65,6 +65,115 @@ public class RunBank {
 	    }
 	}
 	
+	// Method to generate next available account number
+    private static String generateNextAccountNumber(String lastAccountNumber) {
+        int accountNumber = Integer.parseInt(lastAccountNumber);
+        accountNumber++;  // Increment by 1
+        return String.valueOf(accountNumber);
+    }
+	
+    private static void createNewUser(Scanner scanner) {
+        System.out.println("Please enter the following information to create a new user:");
+
+        // Collect user details
+        System.out.print("Name (First Last): ");
+        String name = scanner.nextLine().trim();
+
+        System.out.print("Date of Birth (YYYY-MM-DD): ");
+        String dob = scanner.nextLine().trim();
+
+        System.out.print("Address: ");
+        String address = scanner.nextLine().trim();
+
+        System.out.print("Phone Number: ");
+        String phoneNumber = scanner.nextLine().trim();
+
+        // Generate the new user ID
+        int newId = generateNewId("CS 3331 - Bank Users.csv");
+
+        // Generate new account numbers based on last user in CSV
+        String lastCheckingAccountNum = customers[customerCount - 1].getCheckingAccount().getAccountNum();
+        String lastSavingAccountNum = customers[customerCount - 1].getSavingAccount().getAccountNum();
+        String lastCreditAccountNum = customers[customerCount - 1].getCreditAccount().getAccountNum();
+
+        // Increment account numbers
+        String newCheckingAccountNum = generateNextAccountNumber(lastCheckingAccountNum);
+        String newSavingAccountNum = generateNextAccountNumber(lastSavingAccountNum);
+        String newCreditAccountNum = generateNextAccountNumber(lastCreditAccountNum);
+
+        // Ask user for starting balances (or set default)
+        System.out.print("Starting Checking Balance: ");
+        double checkingStartingBalance = scanner.nextDouble();
+
+        System.out.print("Starting Savings Balance: ");
+        double savingsStartingBalance = scanner.nextDouble();
+
+        System.out.print("Starting Credit Balance: ");
+        double creditStartingBalance = scanner.nextDouble();
+        
+        System.out.print("Credit Max Limit: ");
+        double creditMax = scanner.nextDouble();
+        
+        scanner.nextLine(); // Clear buffer
+
+        // Create accounts
+        Checking newCheckingAccount = new Checking(newCheckingAccountNum, checkingStartingBalance);
+        Saving newSavingAccount = new Saving(newSavingAccountNum, savingsStartingBalance);
+        Credit newCreditAccount = new Credit(newCreditAccountNum, creditStartingBalance, creditMax);
+
+        // Create new customer
+        Customer newCustomer = new Customer(name, newCheckingAccount, newSavingAccount, newCreditAccount);
+
+        // Add to customers array
+        if (customerCount < MAX_CUSTOMERS) {
+            customers[customerCount] = newCustomer;
+            customerCount++;
+        }
+
+        // Log the new user to a new CSV (Updated Bank Users file)
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Updated_Bank_Users.csv", true))) {
+            // Check if it's the first line (header)
+            if (customerCount == 1) {
+                writer.write("Identification Number,First Name,Last Name,Date of Birth,Address,Phone Number,Checking Account Number,Checking Starting Balance,Savings Account Number,Savings Starting Balance,Credit Account Number,Credit Max,Credit Starting Balance");
+                writer.newLine();  // Write the header if it's the first user
+            }
+            // Write new customer data
+            writer.write(newId + "," + newCustomer.getName().split(" ")[0] + "," + newCustomer.getName().split(" ")[1] + "," + dob + "," + address + "," + phoneNumber + "," +
+                newCheckingAccountNum + "," + checkingStartingBalance + "," + newSavingAccountNum + "," + savingsStartingBalance + "," + newCreditAccountNum + "," + creditMax + "," + creditStartingBalance);
+            writer.newLine();
+            
+            System.out.println("New user created and saved to Updated_Bank_Users.csv.");
+        } catch (IOException e) {
+            System.err.println("Error writing to CSV: " + e.getMessage());
+        }
+    }
+    
+ // Method to generate a new ID by checking the existing CSV file
+    private static int generateNewId(String csvFile) {
+    	int maxId = 0;
+        
+        try (BufferedReader reader = new BufferedReader(new FileReader(csvFile))) {
+            String line;
+            // Skip the header line
+            reader.readLine();
+
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split(",");
+                // Ensure that the ID is parsed correctly
+                int id = Integer.parseInt(values[0].trim()); // Assuming the ID is in the first column
+                if (id > maxId) {
+                    maxId = id;
+                }
+            }
+        } catch (IOException e) {
+            // Handle case where the file doesn't exist or is empty
+            System.out.println("File not found or empty, starting with ID 1.");
+        }
+
+        // Increment ID by 1
+        return maxId + 1;
+    }
+	
 	/**
      * The main method that runs the interactive bank system for managing customer accounts.
      *
@@ -86,6 +195,7 @@ public class RunBank {
             System.out.println("4. Transfer Money");
             System.out.println("5. Pay Someone");
             System.out.println("6. Bank Manager Access");
+            System.out.println("7. Create new user");
             System.out.println("Type EXIT to leave.");
 
             action = scanner.nextLine().trim().toUpperCase();
@@ -275,6 +385,9 @@ public class RunBank {
                         }
                     }
                     break;
+                case "7":
+                	createNewUser(scanner);
+                	break;
 
                 default:
                     if (!action.equals("EXIT")) {
