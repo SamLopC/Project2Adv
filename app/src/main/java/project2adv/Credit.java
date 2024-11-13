@@ -1,13 +1,38 @@
 package project2adv;
 
+/**
+ * The {@code Credit} class represents a credit account with an assigned credit limit.
+ * It extends the {@link Account} class, overriding methods to handle unique credit account
+ * behaviors, such as withdrawal constraints based on credit limits and deposits specifically
+ * for outstanding balance repayment.
+ *
+ * <p>This class allows for viewing credit account details, charging to the credit account,
+ * and making deposits to reduce outstanding balances.
+ *
+ * @see Account
+ */
 public class Credit extends Account {
+    /**
+     * The credit limit assigned to the credit account.
+     */
     private double credLimit;
 
+    /**
+     * Constructs a new {@code Credit} account with the specified account number, initial balance, and credit limit.
+     *
+     * @param accountNum the account number to assign to this credit account
+     * @param accountBal the initial balance of the credit account
+     * @param credLimit  the credit limit assigned to this account
+     */
     public Credit(String accountNum, double accountBal, double credLimit) {
         super(accountNum, accountBal);
         this.credLimit = credLimit;
     }
 
+    /**
+     * Displays information about the credit account, including account number, current balance, 
+     * and credit limit.
+     */
     @Override
     public void displayAccountInfo() {
         System.out.println("Credit Account Number: " + accountNum);
@@ -15,6 +40,15 @@ public class Credit extends Account {
         System.out.println("Credit Limit: $" + credLimit);
     }
 
+    /**
+     * Withdraws (charges) a specified amount to the credit account, as long as it does not 
+     * exceed the credit limit. The transaction can be optionally logged.
+     *
+     * @param amount          the amount to charge, must be positive and within credit limit
+     * @param customerName    the name of the customer making the charge
+     * @param logTransaction  flag indicating if the transaction should be logged
+     * @throws IllegalArgumentException if the amount is non-positive or exceeds the available credit limit
+     */
     @Override
     public void withdraw(double amount, String customerName, boolean logTransaction) {
         if (amount <= 0) {
@@ -31,22 +65,41 @@ public class Credit extends Account {
         }
     }
 
+    /**
+     * Retrieves the type of the account, which is "Credit" for instances of this class.
+     *
+     * @return a {@code String} representing the account type, which is "Credit"
+     */
     @Override
     public String getAccountType() {
         return "Credit";
     }
 
+    /**
+     * Retrieves the credit limit of this credit account as a {@code String}.
+     *
+     * @return the credit limit as a string
+     */
     public String getCreditLimit() {
-        return String.valueOf(credLimit); // Returns credit limit as a String
+        return String.valueOf(credLimit);
     }
 
+    /**
+     * Deposits a specified amount to the credit account to reduce the outstanding balance. 
+     * Deposits that exceed the negative balance (overpayment) are not allowed.
+     *
+     * @param amount          the amount to deposit, must be positive and not exceed outstanding balance
+     * @param customerName    the name of the customer making the deposit
+     * @param logTransaction  flag indicating if the transaction should be logged
+     * @throws IllegalArgumentException if the amount is non-positive or exceeds the outstanding balance
+     */
     @Override
     public void deposit(double amount, String customerName, boolean logTransaction) {
         if (amount <= 0) {
             throw new IllegalArgumentException("Deposit amount must be positive.");
         }
         
-        // New logic: Check if the deposit exceeds the outstanding balance
+        // Ensure the deposit does not result in a positive balance
         if (accountBal + amount > 0) {  // Assuming balance is negative for credit accounts
             throw new IllegalArgumentException("Deposit exceeds the outstanding balance.");
         }
@@ -58,5 +111,4 @@ public class Credit extends Account {
                 + ". New Balance: $" + accountBal);
         }
     }
-
 }

@@ -1,22 +1,29 @@
 package project2adv;
 
 /**
- * Class representing a savings account.
+ * The {@code Saving} class represents a savings account. It extends the {@link Account} class 
+ * to provide specific details and behaviors for a savings account, including displaying account 
+ * information and defining the account type as "Saving".
+ *
+ * <p>This class includes methods to display the account number and current balance, and it 
+ * implements the {@link Account} methods with savings account-specific information.
+ *
+ * @see Account
  */
 public class Saving extends Account {
 
     /**
-     * Constructor to initialize a savings account with account number and balance.
+     * Constructs a new {@code Saving} account with the specified account number and initial balance.
      *
-     * @param accountNum the account number
-     * @param accountBal the initial balance
+     * @param accountNum the account number to assign to this savings account
+     * @param accountBal the initial balance of the savings account
      */
     public Saving(String accountNum, double accountBal) {
         super(accountNum, accountBal);
     }
 
     /**
-     * Displays the account information for a savings account.
+     * Displays information about the savings account, including the account number and current balance.
      */
     @Override
     public void displayAccountInfo() {
@@ -25,9 +32,9 @@ public class Saving extends Account {
     }
 
     /**
-     * Returns the type of account (in this case, "Saving").
+     * Retrieves the type of the account, which is "Saving" for instances of this class.
      *
-     * @return "Saving"
+     * @return a {@code String} representing the account type, which is "Saving"
      */
     @Override
     public String getAccountType() {

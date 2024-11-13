@@ -261,21 +261,67 @@ public class RunBank {
     }
 
     public static void transferMoney() {
-        System.out.println("Enter sender's information:");
-        Customer sender = findCustomerByName();
-
-        System.out.println("Enter recipient's information:");
-        Customer recipient = findCustomerByName();
-
-        if (sender != null && recipient != null) {
+        System.out.println("Enter customer's information:");
+        Customer customer = findCustomerByName();
+    
+        if (customer != null) {
+            System.out.println("Select the source account for the transfer:");
+            Account sourceAccount = selectAccount(scanner, customer);
+    
+            System.out.println("Select the target account to receive the funds:");
+            Account targetAccount = selectAccount(scanner, customer);
+    
+            if (sourceAccount == targetAccount) {
+                System.out.println("Source and target accounts must be different.");
+                return;
+            }
+    
             System.out.println("Enter transfer amount:");
             double transferAmount = scanner.nextDouble();
             scanner.nextLine();  // Clear input buffer
-            sender.transferMoney(recipient, transferAmount);
+    
+            if (sourceAccount != null && targetAccount != null) {
+                try {
+                    // Withdraw from the source account
+                    sourceAccount.withdraw(transferAmount, customer.getName(), true);
+    
+                    // Deposit into the target account
+                    targetAccount.deposit(transferAmount, customer.getName(), true);
+    
+                    System.out.println("Successfully transferred $" + transferAmount + " from " 
+                        + sourceAccount.getAccountType() + " to " + targetAccount.getAccountType() + ".");
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Transfer failed: " + e.getMessage());
+                }
+            } else {
+                System.out.println("Invalid account selection.");
+            }
         } else {
-            System.out.println("Sender or recipient not found.");
+            System.out.println("Customer not found.");
         }
     }
+    
+    private static Account selectAccount(Scanner scanner, Customer customer) {
+        System.out.println("1. Checking Account");
+        System.out.println("2. Savings Account");
+        System.out.println("3. Credit Account");
+        System.out.print("Choose an account by number: ");
+        int choice = scanner.nextInt();
+        scanner.nextLine();  // Clear input buffer
+    
+        switch (choice) {
+            case 1:
+                return customer.getCheckingAccount();
+            case 2:
+                return customer.getSavingAccount();
+            case 3:
+                return customer.getCreditAccount();
+            default:
+                System.out.println("Invalid choice.");
+                return null;
+        }
+    }
+    
 
     public static void paySomeone() {
         System.out.println("Enter payer's information:");

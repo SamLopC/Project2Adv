@@ -1,25 +1,29 @@
 package project2adv;
 
 /**
- * Interface representing account information methods.
+ * The {@code AccountInfo} interface defines methods for retrieving basic account information.
+ * This interface can be implemented by various account types to provide a standardized way 
+ * of displaying account details, checking the current balance, and identifying the account type.
  */
 public interface AccountInfo {
     /**
-     * Displays account information.
+     * Displays information about the account. This may include details such as the account number,
+     * current balance, and other relevant account-specific information.
      */
     void displayAccountInfo();
 
     /**
-     * Returns the current balance of the account.
+     * Retrieves the current balance of the account.
      *
-     * @return the account balance
+     * @return the current balance of the account
      */
     double showBalance();
 
     /**
-     * Returns the account type (e.g., Checking or Saving).
+     * Retrieves the type of the account. Implementations should specify the type, such as "Checking" 
+     * or "Saving", as appropriate.
      *
-     * @return the account type
+     * @return a {@code String} representing the account type
      */
     String getAccountType();
 }

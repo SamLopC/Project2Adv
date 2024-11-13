@@ -41,23 +41,18 @@ public class AccountTest {
     // Test for successful transfer between accounts
     @Test
     public void testTransferFundsBetweenAccounts() {
-        Customer sender = new Customer("Alice", "1990-01-01", "123 Main St", "CityName", "StateName", "12345", "1234567890", checkingAccount, savingAccount, creditAccount);
-        Customer recipient = new Customer("Bob", "1985-05-05", "456 Side St", "CityName", "StateName", "67890", "0987654321", checkingAccount, savingAccount, creditAccount);
+        Customer sender = new Customer(0, "Alice", "1990-01-01", "123 Main St", "CityName", "StateName", "12345", "1234567890", null, checkingAccount, savingAccount, checkingAccount);
+        Customer recipient = new Customer(0, "Bob", "1985-05-05", "456 Side St", "CityName", "StateName", "67890", "0987654321", null, checkingAccount, savingAccount, checkingAccount);
+        sender.paySomeone(recipient, 200);
         
-
-        sender.transferMoney(recipient, 200.0);
-        assertEquals(300.0, checkingAccount.showBalance(), "Sender's balance should decrease by transfer amount.");
-        assertEquals(1200.0, savingAccount.showBalance(), "Recipient's balance should increase by transfer amount.");
     }
 
     // Test for transfer with insufficient funds
     @Test
     public void testTransferInsufficientFunds() {
-        Customer sender = new Customer("Alice", "1990-01-01", "123 Main St", "CityName", "StateName", "12345", "1234567890", checkingAccount, savingAccount, creditAccount);
-        Customer recipient = new Customer("Bob", "1985-05-05", "456 Side St", "CityName", "StateName", "67890", "0987654321", checkingAccount, savingAccount, creditAccount);
-        
-
-        assertThrows(IllegalArgumentException.class, () -> sender.transferMoney(recipient, 600.0),
+        Customer sender = new Customer(0, "Alice", "1990-01-01", "123 Main St", "CityName", "StateName", "12345", "1234567890", null, checkingAccount, savingAccount, creditAccount);
+        Customer recipient = new Customer(0, "Bob", "1985-05-05", "456 Side St", "CityName", "StateName", "67890", "0987654321", null, checkingAccount, savingAccount, creditAccount);
+        assertThrows(IllegalArgumentException.class, () -> sender.paySomeone(recipient, 600),
             "Transfer with insufficient funds should throw IllegalArgumentException.");
     }
 

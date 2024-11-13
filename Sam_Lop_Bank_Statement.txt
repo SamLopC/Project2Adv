@@ -1,0 +1,21 @@
+----- Bank Statement -----
+Date: 2024-11-12
+
+Customer Information:
+ID: 1003
+Name: Sam Lop
+Date of Birth: 2020202
+Address: 020202003
+Phone Number: 39249294924
+
+Account Information:
+Checking Account Number: 5007
+Checking Starting Balance: $0.0
+Savings Account Number: 5008
+Savings Starting Balance: $0.0
+Credit Account Number: 5009
+Credit Max: $23629.0
+Credit Starting Balance: $0.0
+
+Transaction History (Current Session):
+No transactions recorded in this session.
