@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="project2adv.AccountTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2024-12-02T02:06:06" hostname="Samuels-MacBook-Air-8.local" time="0.026">
+<testsuite name="project2adv.AccountTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2024-12-02T02:30:03" hostname="Samuels-MacBook-Air-8.local" time="0.034">
   <properties/>
-  <testcase name="testSavingDeposit()" classname="project2adv.AccountTest" time="0.014"/>
+  <testcase name="testSavingDeposit()" classname="project2adv.AccountTest" time="0.016"/>
   <testcase name="testWithdrawInsufficientFunds()" classname="project2adv.AccountTest" time="0.001"/>
-  <testcase name="testCreditDepositReducesOutstandingBalance()" classname="project2adv.AccountTest" time="0.001"/>
-  <testcase name="testTransferInsufficientFunds()" classname="project2adv.AccountTest" time="0.001"/>
-  <testcase name="testCreditWithdrawExceedingLimit()" classname="project2adv.AccountTest" time="0.001"/>
-  <testcase name="testCreditWithdrawWithinLimit()" classname="project2adv.AccountTest" time="0.002"/>
+  <testcase name="testCreditDepositReducesOutstandingBalance()" classname="project2adv.AccountTest" time="0.0"/>
+  <testcase name="testTransferInsufficientFunds()" classname="project2adv.AccountTest" time="0.0"/>
+  <testcase name="testCreditWithdrawExceedingLimit()" classname="project2adv.AccountTest" time="0.0"/>
+  <testcase name="testCreditWithdrawWithinLimit()" classname="project2adv.AccountTest" time="0.005"/>
   <testcase name="testCheckingDeposit()" classname="project2adv.AccountTest" time="0.0"/>
   <testcase name="testWithdrawNegativeAmount()" classname="project2adv.AccountTest" time="0.0"/>
   <testcase name="testSavingWithdrawal()" classname="project2adv.AccountTest" time="0.001"/>

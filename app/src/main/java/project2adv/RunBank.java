@@ -12,6 +12,11 @@ public class RunBank {
     private static final AtomicInteger userIdGenerator = new AtomicInteger(1001); // Starts at 1001
     private static final AtomicInteger accountNumGenerator = new AtomicInteger(5001); // Starts at 5001
     private static final Scanner scanner = new Scanner(System.in);
+
+    private static final String MANAGER_PASSWORD = "secret"; // Define the manager password
+    private static final String CSV_FILE_PATH = "customers.csv";
+
+
     
     // Map to store customers by userID for unique identification
     private static final Map<Integer, Customer> customers = new HashMap<>();
@@ -75,8 +80,6 @@ public class RunBank {
 
         writeCustomerToCSV(newCustomer);
     }
-
-    private static final String CSV_FILE_PATH = "customers.csv";
 
     private static void writeCustomerToCSV(Customer customer) {
         java.io.File file = new java.io.File(CSV_FILE_PATH);
@@ -159,7 +162,7 @@ public class RunBank {
         }
     }
 
-        public static void generateTransactionStatement(Customer customer) {
+    public static void generateTransactionStatement(Customer customer) {
         String fileName = customer.getFirstName() + "_" + customer.getLastName() + "_Transaction_Statement.txt";
         try (FileWriter writer = new FileWriter(fileName)) {
             writer.write("Transaction Statement for " + customer.getFirstName() + " " + customer.getLastName() + "\n");
@@ -377,7 +380,6 @@ public class RunBank {
         }
     }
     
-
     public static void paySomeoneForCustomer(Customer payer) {
         System.out.println("Enter the recipient's first name:");
         String recipientFirstName = scanner.nextLine().trim();
@@ -413,7 +415,6 @@ public class RunBank {
         }
     }
     
-
     private static Customer findCustomerByName() {
         System.out.println("Search by (1) First Name or (2) Last Name:");
         String searchType = scanner.nextLine().trim();
@@ -471,7 +472,9 @@ public class RunBank {
         return null;
     }
 
-    private static final String MANAGER_PASSWORD = "secret"; // Define the manager password
+
+
+    // Bank Manager Access
 
     private static void bankManagerAccess() {
         System.out.print("Enter Bank Manager Password: ");
@@ -514,7 +517,6 @@ public class RunBank {
         }
     }
     
-
     private static void inquireAccountByName() {
         System.out.println("Whose account would you like to inquire about?");
         String managerCustomerName = scanner.nextLine().trim();
@@ -547,11 +549,8 @@ public class RunBank {
         System.out.println("No account found with type " + accountType + " and account number " + accountNumber);
     }
 
-    
-    //Bank Statement
-
-        // Generate a Bank Statement for a specific user (only accessible by manager)
-        public static void generateBankStatement(Customer customer) {
+    // Generate a Bank Statement for a specific user (only accessible by manager)
+    public static void generateBankStatement(Customer customer) {
             // Set the file name as "[FirstName_LastName]_Bank_Statement.txt"
             String fileName = customer.getFirstName() + "_" + customer.getLastName() + "_Bank_Statement.txt";
             
@@ -675,7 +674,6 @@ public class RunBank {
         return customer;
     }
     
-
     private static Customer getCustomerFromFile(String fileName, String firstName, String lastName) {
         System.out.println("Searching for customer in file: " + fileName);
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
@@ -860,6 +858,8 @@ public class RunBank {
             System.out.println("Transaction failed: Account not found.");
         }
     }
+
+
 
     // Helper method to get the account based on type
     private static Account getAccountByType(Customer customer, String accountType) {
