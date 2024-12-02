@@ -84,3 +84,11 @@
 2024-12-01T20:14:35.103386 - Alice Smith withdrew $200.0 from Checking-12345. New Balance: $300.0
 2024-12-01T20:14:35.103598 - Bob Johnson deposited $200.0 to Checking-54321. New Balance: $300.0
 2024-12-01T20:14:35.106599 - Test Customer withdrew $100.0 from Checking-12345. New Balance: $400.0
+2024-12-01T21:20:46.849847 - Test Customer deposited $500.0 to Saving-54321. New Balance: $1500.0
+2024-12-01T21:20:46.857730 - Test Customer deposited $50.0 to Credit-67890. New Balance: $0.0
+2024-12-01T21:20:46.862114 - Test Customer charged $200.0 to Credit-67890. New Balance: $150.0
+2024-12-01T21:20:46.863011 - Test Customer deposited $200.0 to Checking-12345. New Balance: $700.0
+2024-12-01T21:20:46.864811 - Test Customer withdrew $300.0 from Saving-54321. New Balance: $700.0
+2024-12-01T21:20:46.866136 - Alice Smith withdrew $200.0 from Checking-12345. New Balance: $300.0
+2024-12-01T21:20:46.866281 - Bob Johnson deposited $200.0 to Checking-54321. New Balance: $300.0
+2024-12-01T21:20:46.868301 - Test Customer withdrew $100.0 from Checking-12345. New Balance: $400.0
