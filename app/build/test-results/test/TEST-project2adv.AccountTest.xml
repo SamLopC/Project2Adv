@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="project2adv.AccountTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2024-12-02T02:30:03" hostname="Samuels-MacBook-Air-8.local" time="0.034">
+<testsuite name="project2adv.AccountTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2024-12-02T03:14:35" hostname="Samuels-MacBook-Air-8.local" time="0.03">
   <properties/>
   <testcase name="testSavingDeposit()" classname="project2adv.AccountTest" time="0.016"/>
   <testcase name="testWithdrawInsufficientFunds()" classname="project2adv.AccountTest" time="0.001"/>
   <testcase name="testCreditDepositReducesOutstandingBalance()" classname="project2adv.AccountTest" time="0.0"/>
   <testcase name="testTransferInsufficientFunds()" classname="project2adv.AccountTest" time="0.0"/>
   <testcase name="testCreditWithdrawExceedingLimit()" classname="project2adv.AccountTest" time="0.0"/>
-  <testcase name="testCreditWithdrawWithinLimit()" classname="project2adv.AccountTest" time="0.005"/>
-  <testcase name="testCheckingDeposit()" classname="project2adv.AccountTest" time="0.0"/>
-  <testcase name="testWithdrawNegativeAmount()" classname="project2adv.AccountTest" time="0.0"/>
+  <testcase name="testCreditWithdrawWithinLimit()" classname="project2adv.AccountTest" time="0.002"/>
+  <testcase name="testCheckingDeposit()" classname="project2adv.AccountTest" time="0.001"/>
+  <testcase name="testWithdrawNegativeAmount()" classname="project2adv.AccountTest" time="0.001"/>
   <testcase name="testSavingWithdrawal()" classname="project2adv.AccountTest" time="0.001"/>
   <testcase name="testSavingWithdrawalExceedingBalance()" classname="project2adv.AccountTest" time="0.0"/>
-  <testcase name="testTransferFundsBetweenAccounts()" classname="project2adv.AccountTest" time="0.001"/>
+  <testcase name="testTransferFundsBetweenAccounts()" classname="project2adv.AccountTest" time="0.002"/>
   <testcase name="testWithdrawPositiveAmount()" classname="project2adv.AccountTest" time="0.0"/>
   <system-out><![CDATA[Deposit of $500.0 successful.
 Deposit of $50.0 successful.

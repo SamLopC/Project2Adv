@@ -8,8 +8,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
 public class RunBank {
-    private static final AtomicInteger userIdGenerator = new AtomicInteger(1001); // Starts at 1001
+    private static final AtomicInteger userIdGenerator = new AtomicInteger(1001); // Starts at 10011
     private static final AtomicInteger accountNumGenerator = new AtomicInteger(5001); // Starts at 5001
     private static final Scanner scanner = new Scanner(System.in);
 
@@ -673,19 +676,19 @@ public class RunBank {
         
         return customer;
     }
-    
+
     private static Customer getCustomerFromFile(String fileName, String firstName, String lastName) {
         System.out.println("Searching for customer in file: " + fileName);
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line = br.readLine();  // Skip header line
-            
+    
             while ((line = br.readLine()) != null) {
                 String[] data = line.split(",");
                 
                 // Adjust parsing based on file format
                 boolean isBankUsersFile = fileName.equals("CS3331-BankUsers.csv");
                 int requiredLength = isBankUsersFile ? 13 : 15;
-                
+    
                 if (data.length < requiredLength) {
                     System.out.println("Skipping incomplete line: " + line);
                     continue;
@@ -709,10 +712,19 @@ public class RunBank {
     
                 if (fileFirstName.equalsIgnoreCase(firstName) && fileLastName.equalsIgnoreCase(lastName)) {
                     System.out.println("Customer " + firstName + " " + lastName + " found in file: " + fileName);
-                    
+    
                     // Parse fields according to format
                     int userID = Integer.parseInt(data[0].trim());
-                    String dob = data[isBankUsersFile ? 3 : 2].trim();
+                    String dobRaw = data[isBankUsersFile ? 3 : 2].trim();
+    
+                    // Normalize the Date of Birth to a standard format (e.g., YYYY-MM-DD)
+                    String dobNormalized = normalizeDate(dobRaw);
+    
+                    if (dobNormalized == null) {
+                        System.out.println("Skipping line due to invalid DOB format: " + dobRaw);
+                        continue;
+                    }
+    
                     String address = data[isBankUsersFile ? 4 : 3].trim();
                     String city = data[isBankUsersFile ? 5 : 4].trim();
                     String state = data[isBankUsersFile ? 6 : 5].trim();
@@ -740,7 +752,7 @@ public class RunBank {
                     }
                     Account credit = new Credit(creditAccountNum, creditBalance, creditLimit);
     
-                    return new Customer(userID, fileFirstName, fileLastName, dob, address, city, state, zip, phoneNumber, checking, saving, credit);
+                    return new Customer(userID, fileFirstName, fileLastName, dobNormalized, address, city, state, zip, phoneNumber, checking, saving, credit);
                 }
             }
         } catch (IOException e) {
@@ -753,7 +765,6 @@ public class RunBank {
         System.out.println("Customer " + firstName + " " + lastName + " not found in file: " + fileName);
         return null;
     }
-    
     
     
 
@@ -877,20 +888,28 @@ public class RunBank {
         }
     }
 
+
+    
     private static void handleCustomerLogin() {
         System.out.println("Please log in:");
         System.out.print("First Name: ");
         String firstName = scanner.nextLine().trim();
         System.out.print("Last Name: ");
         String lastName = scanner.nextLine().trim();
-        System.out.print("Password (Your Date of Birth in YYYYMMDD format): ");
-        String password = scanner.nextLine().trim();
-    
+        System.out.print("Password (Your Date of Birth in YYYYMMDD format or other valid formats, e.g., 5-May-41): ");
+        String passwordInput = scanner.nextLine().trim();
+        
         Customer customer = findCustomer(firstName, lastName);
-    
+        
         if (customer != null) {
-            // Using Date of Birth as a simple password
-            if (password.equals(customer.getDob().replaceAll("-", ""))) {
+            // Get the stored Date of Birth in the expected format (YYYYMMDD)
+            String expectedPassword = customer.getDob().replaceAll("-", "");
+            
+            // Normalize the user input to the expected format
+            String normalizedPassword = normalizeDate(passwordInput);
+    
+            // Validate the password
+            if (normalizedPassword != null && normalizedPassword.equals(expectedPassword)) {
                 System.out.println("Login successful. Welcome " + customer.getFirstName() + "!");
                 handleCustomerActions(customer);
             } else {
@@ -900,6 +919,38 @@ public class RunBank {
             System.out.println("Customer not found. Please try again.");
         }
     }
+    
+    /**
+     * Normalizes user input for the password to the format YYYYMMDD.
+     * 
+     * @param dobInput The user input for date of birth.
+     * @return The normalized password in YYYYMMDD format, or null if the input is invalid.
+     */
+    private static String normalizeDate(String dobInput) {
+        // Define multiple date formats the user might enter
+        DateTimeFormatter[] formatters = {
+            DateTimeFormatter.ofPattern("yyyyMMdd"),     // Format: 19410505
+            DateTimeFormatter.ofPattern("d-MMM-yy", Locale.ENGLISH), // Format: 5-May-41
+            DateTimeFormatter.ofPattern("MM/dd/yyyy"),   // Format: 05/05/1941
+            DateTimeFormatter.ofPattern("yyyy-MM-dd")    // Format: 1941-05-05
+        };
+    
+        // Try parsing the input with each format
+        for (DateTimeFormatter formatter : formatters) {
+            try {
+                LocalDate date = LocalDate.parse(dobInput, formatter);
+                // Return the normalized format: YYYYMMDD
+                return date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+            } catch (DateTimeParseException ignored) {
+                // Try the next format if this one fails
+            }
+        }
+    
+        System.out.println("Invalid date format. Please enter a valid date of birth.");
+        return null;
+    }
+    
+    
 
     private static void handleCustomerActions(Customer customer) {
         String action;
