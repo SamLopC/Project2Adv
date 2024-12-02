@@ -6,9 +6,6 @@ package project2adv;
  * behaviors, such as withdrawal constraints based on credit limits and deposits specifically
  * for outstanding balance repayment.
  *
- * <p>This class allows for viewing credit account details, charging to the credit account,
- * and making deposits to reduce outstanding balances.
- *
  * @see Account
  */
 public class Credit extends Account {
@@ -86,26 +83,27 @@ public class Credit extends Account {
 
     /**
      * Deposits a specified amount to the credit account to reduce the outstanding balance. 
-     * Deposits that exceed the negative balance (overpayment) are not allowed.
+     * Deposits that exceed the negative balance (overpayment) are allowed but logged as a warning.
      *
-     * @param amount          the amount to deposit, must be positive and not exceed outstanding balance
+     * @param amount          the amount to deposit, must be positive
      * @param customerName    the name of the customer making the deposit
      * @param logTransaction  flag indicating if the transaction should be logged
-     * @throws IllegalArgumentException if the amount is non-positive or exceeds the outstanding balance
+     * @throws IllegalArgumentException if the amount is non-positive
      */
     @Override
     public void deposit(double amount, String customerName, boolean logTransaction) {
         if (amount <= 0) {
             throw new IllegalArgumentException("Deposit amount must be positive.");
         }
-        
-        // Ensure the deposit does not result in a positive balance
-        if (accountBal + amount > 0) {  // Assuming balance is negative for credit accounts
-            throw new IllegalArgumentException("Deposit exceeds the outstanding balance.");
+
+        // Check for overpayment
+        if (accountBal + amount > 0) {
+            System.out.println("Warning: Deposit exceeds the outstanding balance and results in a positive balance.");
         }
 
-        accountBal += amount;
+        accountBal += amount; // Update the balance
         System.out.println("Deposit of $" + amount + " successful.");
+
         if (logTransaction) {
             logTransaction(customerName + " deposited $" + amount + " to " + getAccountType() + "-" + accountNum 
                 + ". New Balance: $" + accountBal);

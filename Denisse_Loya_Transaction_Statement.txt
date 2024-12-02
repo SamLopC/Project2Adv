@@ -1,0 +1,13 @@
+Transaction Statement for Denisse Loya
+Date of Statement: 2024-11-20
+
+Account Information:
+Checking Account Number: 5010
+Saving Account Number: 5011
+Credit Account Number: 5012
+
+Starting Balance: $0.0
+Ending Balance: $8000.0
+
+Transaction History:
+2024-11-20T11:17:39.728734 - Denisse Loya deposited $8000.0 to Checking-5010. New Balance: $8000.0

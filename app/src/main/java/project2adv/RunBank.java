@@ -236,71 +236,126 @@ public class RunBank {
         }
     }
 
-    public static void depositMoney() {
-        Customer customer = findCustomerByName();
-        if (customer != null) {
-            System.out.println("Enter amount to deposit:");
-            double depositAmount = scanner.nextDouble();
-            scanner.nextLine();  // Clear input buffer
-            customer.depositMoney(depositAmount);
-        } else {
-            System.out.println("Customer not found.");
-        }
-    }
-
-    public static void withdrawMoney() {
-        Customer customer = findCustomerByName();
-        if (customer != null) {
-            System.out.println("Enter amount to withdraw:");
-            double withdrawAmount = scanner.nextDouble();
-            scanner.nextLine();  // Clear input buffer
-            customer.withdrawMoney(withdrawAmount);
-        } else {
-            System.out.println("Customer not found.");
-        }
-    }
-
-    public static void transferMoney() {
-        System.out.println("Enter customer's information:");
-        Customer customer = findCustomerByName();
+    public static void depositMoney(Customer customer) {
+        double depositAmount = 0;
+        boolean validInput = false;
     
-        if (customer != null) {
-            System.out.println("Select the source account for the transfer:");
-            Account sourceAccount = selectAccount(scanner, customer);
-    
-            System.out.println("Select the target account to receive the funds:");
-            Account targetAccount = selectAccount(scanner, customer);
-    
-            if (sourceAccount == targetAccount) {
-                System.out.println("Source and target accounts must be different.");
-                return;
-            }
-    
-            System.out.println("Enter transfer amount:");
-            double transferAmount = scanner.nextDouble();
-            scanner.nextLine();  // Clear input buffer
-    
-            if (sourceAccount != null && targetAccount != null) {
-                try {
-                    // Withdraw from the source account
-                    sourceAccount.withdraw(transferAmount, customer.getName(), true);
-    
-                    // Deposit into the target account
-                    targetAccount.deposit(transferAmount, customer.getName(), true);
-    
-                    System.out.println("Successfully transferred $" + transferAmount + " from " 
-                        + sourceAccount.getAccountType() + " to " + targetAccount.getAccountType() + ".");
-                } catch (IllegalArgumentException e) {
-                    System.out.println("Transfer failed: " + e.getMessage());
+        // Loop until the user provides a valid input
+        while (!validInput) {
+            System.out.println("Enter the amount to deposit:");
+            try {
+                depositAmount = scanner.nextDouble();
+                scanner.nextLine(); // Clear input buffer
+                if (depositAmount <= 0) {
+                    throw new IllegalArgumentException("Deposit amount must be positive.");
                 }
-            } else {
-                System.out.println("Invalid account selection.");
+                validInput = true; // Input is valid, exit the loop
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a numeric value.");
+                scanner.nextLine(); // Clear the invalid input
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    
+        System.out.println("Select the account to deposit into:");
+        Account account = selectAccount(scanner, customer);
+    
+        if (account != null) {
+            try {
+                account.deposit(depositAmount, customer.getName(), true);
+                System.out.println("Deposit successful.");
+            } catch (IllegalArgumentException e) {
+                System.out.println("Deposit failed: " + e.getMessage());
             }
         } else {
-            System.out.println("Customer not found.");
+            System.out.println("Invalid account selection.");
         }
     }
     
+    public static void withdrawMoney(Customer customer) {
+        double withdrawAmount = 0;
+        boolean validInput = false;
+    
+        // Loop until the user provides valid input
+        while (!validInput) {
+            System.out.println("Enter the amount to withdraw:");
+            try {
+                withdrawAmount = scanner.nextDouble();
+                scanner.nextLine(); // Clear input buffer
+                if (withdrawAmount <= 0) {
+                    throw new IllegalArgumentException("Withdrawal amount must be positive.");
+                }
+                validInput = true; // Input is valid, exit the loop
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a numeric value.");
+                scanner.nextLine(); // Clear the invalid input
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    
+        System.out.println("Select the account to withdraw from:");
+        Account account = selectAccount(scanner, customer);
+    
+        if (account != null) {
+            try {
+                account.withdraw(withdrawAmount, customer.getName(), true);
+                System.out.println("Withdrawal successful.");
+            } catch (IllegalArgumentException e) {
+                System.out.println("Withdrawal failed: " + e.getMessage());
+            }
+        } else {
+            System.out.println("Invalid account selection.");
+        }
+    }
+    
+    public static void transferMoneyForCustomer(Customer customer) {
+        System.out.println("Select the source account for the transfer:");
+        Account sourceAccount = selectAccount(scanner, customer);
+    
+        System.out.println("Select the target account to receive the funds:");
+        Account targetAccount = selectAccount(scanner, customer);
+    
+        if (sourceAccount == targetAccount) {
+            System.out.println("Source and target accounts must be different.");
+            return;
+        }
+    
+        double transferAmount = 0;
+        boolean validInput = false;
+    
+        // Loop until the user provides valid input
+        while (!validInput) {
+            System.out.println("Enter transfer amount:");
+            try {
+                transferAmount = scanner.nextDouble();
+                scanner.nextLine(); // Clear input buffer
+                if (transferAmount <= 0) {
+                    throw new IllegalArgumentException("Transfer amount must be positive.");
+                }
+                validInput = true; // Input is valid, exit the loop
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a numeric value.");
+                scanner.nextLine(); // Clear the invalid input
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    
+        if (sourceAccount != null && targetAccount != null) {
+            try {
+                sourceAccount.withdraw(transferAmount, customer.getName(), true);
+                targetAccount.deposit(transferAmount, customer.getName(), true);
+                System.out.println("Successfully transferred $" + transferAmount);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Transfer failed: " + e.getMessage());
+            }
+        } else {
+            System.out.println("Invalid account selection.");
+        }
+    }
+        
     private static Account selectAccount(Scanner scanner, Customer customer) {
         System.out.println("1. Checking Account");
         System.out.println("2. Savings Account");
@@ -323,22 +378,41 @@ public class RunBank {
     }
     
 
-    public static void paySomeone() {
-        System.out.println("Enter payer's information:");
-        Customer payer = findCustomerByName();
-
-        System.out.println("Enter recipient's information:");
-        Customer recipient = findCustomerByName();
-
-        if (payer != null && recipient != null) {
-            System.out.println("Enter payment amount:");
-            double payAmount = scanner.nextDouble();
-            scanner.nextLine();  // Clear input buffer
-            payer.paySomeone(recipient, payAmount);
+    public static void paySomeoneForCustomer(Customer payer) {
+        System.out.println("Enter the recipient's first name:");
+        String recipientFirstName = scanner.nextLine().trim();
+        System.out.println("Enter the recipient's last name:");
+        String recipientLastName = scanner.nextLine().trim();
+    
+        Customer recipient = findCustomer(recipientFirstName, recipientLastName);
+        if (recipient == null) {
+            System.out.println("Recipient not found.");
+            return;
+        }
+    
+        System.out.println("Select your account to pay from:");
+        Account payerAccount = selectAccount(scanner, payer);
+    
+        System.out.println("Select the recipient's account to receive the payment:");
+        Account recipientAccount = selectAccount(scanner, recipient);
+    
+        System.out.println("Enter the amount to pay:");
+        double amount = scanner.nextDouble();
+        scanner.nextLine();  // Clear input buffer
+    
+        if (payerAccount != null && recipientAccount != null) {
+            try {
+                payerAccount.withdraw(amount, payer.getName(), true);
+                recipientAccount.deposit(amount, recipient.getName(), true);
+                System.out.println("Successfully paid $" + amount + " to " + recipient.getFirstName());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Payment failed: " + e.getMessage());
+            }
         } else {
-            System.out.println("Payer or recipient not found.");
+            System.out.println("Invalid account selection.");
         }
     }
+    
 
     private static Customer findCustomerByName() {
         System.out.println("Search by (1) First Name or (2) Last Name:");
@@ -803,60 +877,109 @@ public class RunBank {
         }
     }
 
-    public static void main(String[] args) {
-        loadCustomersFromCSV();  // Load customers at the beginning of the program
-        String action;
+    private static void handleCustomerLogin() {
+        System.out.println("Please log in:");
+        System.out.print("First Name: ");
+        String firstName = scanner.nextLine().trim();
+        System.out.print("Last Name: ");
+        String lastName = scanner.nextLine().trim();
+        System.out.print("Password (Your Date of Birth in YYYYMMDD format): ");
+        String password = scanner.nextLine().trim();
+    
+        Customer customer = findCustomer(firstName, lastName);
+    
+        if (customer != null) {
+            // Using Date of Birth as a simple password
+            if (password.equals(customer.getDob().replaceAll("-", ""))) {
+                System.out.println("Login successful. Welcome " + customer.getFirstName() + "!");
+                handleCustomerActions(customer);
+            } else {
+                System.out.println("Invalid password. Access denied.");
+            }
+        } else {
+            System.out.println("Customer not found. Please try again.");
+        }
+    }
 
+    private static void handleCustomerActions(Customer customer) {
+        String action;
+    
         do {
-            System.out.println("Welcome to El Paso Miners Bank! Choose an option:");
+            System.out.println("\nHello " + customer.getFirstName() + "! What would you like to do?");
             System.out.println("1. Inquire Balance");
             System.out.println("2. Deposit Money");
             System.out.println("3. Withdraw Money");
             System.out.println("4. Transfer Money");
             System.out.println("5. Pay Someone");
-            System.out.println("6. Bank Manager Access");
-            System.out.println("7. Create New User");
-            System.out.println("8. Generate Transaction Statement");
-            System.out.println("Type EXIT to leave.");
-
+            System.out.println("6. Generate Transaction Statement");
+            System.out.println("Type EXIT to log out.");
+    
             action = scanner.nextLine().trim().toUpperCase();
-
+    
             switch (action) {
                 case "1":
-                    inquireBalance();
+                    customer.displayAccountInfo();
                     break;
+    
                 case "2":
-                    depositMoney();
+                    depositMoney(customer);
                     break;
+    
                 case "3":
-                    withdrawMoney();
+                    withdrawMoney(customer);
                     break;
+    
                 case "4":
-                    transferMoney();
+                    transferMoneyForCustomer(customer);
                     break;
+    
                 case "5":
-                    paySomeone();
+                    paySomeoneForCustomer(customer);
                     break;
+    
                 case "6":
-                    bankManagerAccess();
+                    generateTransactionStatement(customer);
                     break;
-                case "7":
-                    createNewUser();
-                    break;
-                case "8":
-                    System.out.println("Enter customer name to generate statement:");
-                    Customer customer = findCustomerByName();
-                    if (customer != null) {
-                        generateTransactionStatement(customer);
-                    }
-                    break;
+    
                 default:
                     if (!action.equals("EXIT")) {
                         System.out.println("Invalid option. Please try again.");
                     }
             }
         } while (!action.equals("EXIT"));
+    
+        System.out.println("You have successfully logged out. Have a great day!");
+    }
+    
 
+    public static void main(String[] args) {
+        loadCustomersFromCSV(); 
+        String action;
+    
+        do {
+            System.out.println("Welcome to El Paso Miners Bank! Please select your role:");
+            System.out.println("1. Customer");
+            System.out.println("2. Bank Manager");
+            System.out.println("Type EXIT to leave.");
+    
+            action = scanner.nextLine().trim().toUpperCase();
+    
+            switch (action) {
+                case "1": // Customer
+                    handleCustomerLogin();
+                    break;
+    
+                case "2": // Bank Manager
+                    bankManagerAccess();
+                    break;
+    
+                default:
+                    if (!action.equals("EXIT")) {
+                        System.out.println("Invalid option. Please try again.");
+                    }
+            }
+        } while (!action.equals("EXIT"));
+    
         System.out.println("Thank you for using El Paso Miners Bank. Goodbye!");
     }
-}
+}    

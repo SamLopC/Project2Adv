@@ -1,0 +1,21 @@
+----- Bank Statement -----
+Date: 2024-11-20
+
+Customer Information:
+ID: 1004
+Name: Denisse Loya
+Date of Birth: 2020202
+Address: 329939293923fddf
+Phone Number: 9292929292
+
+Account Information:
+Checking Account Number: 5010
+Checking Starting Balance: $0.0
+Savings Account Number: 5011
+Savings Starting Balance: $0.0
+Credit Account Number: 5012
+Credit Max: $18975.0
+Credit Starting Balance: $0.0
+
+Transaction History (Current Session):
+2024-11-20T11:17:39.728734 - Denisse Loya deposited $8000.0 to Checking-5010. New Balance: $8000.0

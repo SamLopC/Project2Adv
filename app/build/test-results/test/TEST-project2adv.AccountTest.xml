@@ -1,20 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="project2adv.AccountTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2024-11-13T05:42:39" hostname="Samuels-MacBook-Air-7.local" time="0.027">
+<testsuite name="project2adv.AccountTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2024-12-02T02:06:06" hostname="Samuels-MacBook-Air-8.local" time="0.026">
   <properties/>
-  <testcase name="testWithdrawInsufficientFunds()" classname="project2adv.AccountTest" time="0.007"/>
-  <testcase name="testCreditDepositReducesOutstandingBalance()" classname="project2adv.AccountTest" time="0.009"/>
+  <testcase name="testSavingDeposit()" classname="project2adv.AccountTest" time="0.014"/>
+  <testcase name="testWithdrawInsufficientFunds()" classname="project2adv.AccountTest" time="0.001"/>
+  <testcase name="testCreditDepositReducesOutstandingBalance()" classname="project2adv.AccountTest" time="0.001"/>
   <testcase name="testTransferInsufficientFunds()" classname="project2adv.AccountTest" time="0.001"/>
   <testcase name="testCreditWithdrawExceedingLimit()" classname="project2adv.AccountTest" time="0.001"/>
   <testcase name="testCreditWithdrawWithinLimit()" classname="project2adv.AccountTest" time="0.002"/>
-  <testcase name="testCreditDepositExceedsOutstandingBalance()" classname="project2adv.AccountTest" time="0.0"/>
-  <testcase name="testWithdrawNegativeAmount()" classname="project2adv.AccountTest" time="0.001"/>
-  <testcase name="testTransferFundsBetweenAccounts()" classname="project2adv.AccountTest" time="0.002"/>
-  <testcase name="testWithdrawPositiveAmount()" classname="project2adv.AccountTest" time="0.001"/>
-  <system-out><![CDATA[Deposit of $50.0 successful.
+  <testcase name="testCheckingDeposit()" classname="project2adv.AccountTest" time="0.0"/>
+  <testcase name="testWithdrawNegativeAmount()" classname="project2adv.AccountTest" time="0.0"/>
+  <testcase name="testSavingWithdrawal()" classname="project2adv.AccountTest" time="0.001"/>
+  <testcase name="testSavingWithdrawalExceedingBalance()" classname="project2adv.AccountTest" time="0.0"/>
+  <testcase name="testTransferFundsBetweenAccounts()" classname="project2adv.AccountTest" time="0.001"/>
+  <testcase name="testWithdrawPositiveAmount()" classname="project2adv.AccountTest" time="0.0"/>
+  <system-out><![CDATA[Deposit of $500.0 successful.
+Deposit of $50.0 successful.
 Charged $200.0 to your credit account.
+Deposit of $200.0 successful.
+Withdrawal of $300.0 successful.
 Withdrawal of $200.0 successful.
 Deposit of $200.0 successful.
-Alice 1990-01-01 paid $200.0 to Bob 1985-05-05.
+Alice Smith paid $200.0 to Bob Johnson.
 Withdrawal of $100.0 successful.
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>

@@ -2,11 +2,7 @@ package project2adv;
 
 /**
  * The {@code Saving} class represents a savings account. It extends the {@link Account} class 
- * to provide specific details and behaviors for a savings account, including displaying account 
- * information and defining the account type as "Saving".
- *
- * <p>This class includes methods to display the account number and current balance, and it 
- * implements the {@link Account} methods with savings account-specific information.
+ * to provide specific details and behaviors for a savings account.
  *
  * @see Account
  */

@@ -1,6 +1,7 @@
 package project2adv;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,17 +42,20 @@ public class AccountTest {
     // Test for successful transfer between accounts
     @Test
     public void testTransferFundsBetweenAccounts() {
-        Customer sender = new Customer(0, "Alice", "1990-01-01", "123 Main St", "CityName", "StateName", "12345", "1234567890", null, checkingAccount, savingAccount, checkingAccount);
-        Customer recipient = new Customer(0, "Bob", "1985-05-05", "456 Side St", "CityName", "StateName", "67890", "0987654321", null, checkingAccount, savingAccount, checkingAccount);
+        Customer sender = new Customer(0, "Alice", "Smith", "1990-01-01", "123 Main St", "CityName", "StateName", "12345", "1234567890", checkingAccount, savingAccount, creditAccount);
+        Customer recipient = new Customer(1, "Bob", "Johnson", "1985-05-05", "456 Side St", "CityName", "StateName", "67890", "0987654321", new Checking("54321", 100.0), savingAccount, creditAccount);
+
         sender.paySomeone(recipient, 200);
-        
+        assertEquals(300.0, sender.getCheckingAccount().showBalance(), "Sender's balance should decrease by transfer amount.");
+        assertEquals(300.0, recipient.getCheckingAccount().showBalance(), "Recipient's balance should increase by transfer amount.");
     }
 
     // Test for transfer with insufficient funds
     @Test
     public void testTransferInsufficientFunds() {
-        Customer sender = new Customer(0, "Alice", "1990-01-01", "123 Main St", "CityName", "StateName", "12345", "1234567890", null, checkingAccount, savingAccount, creditAccount);
-        Customer recipient = new Customer(0, "Bob", "1985-05-05", "456 Side St", "CityName", "StateName", "67890", "0987654321", null, checkingAccount, savingAccount, creditAccount);
+        Customer sender = new Customer(0, "Alice", "Smith", "1990-01-01", "123 Main St", "CityName", "StateName", "12345", "1234567890", checkingAccount, savingAccount, creditAccount);
+        Customer recipient = new Customer(1, "Bob", "Johnson", "1985-05-05", "456 Side St", "CityName", "StateName", "67890", "0987654321", new Checking("54321", 100.0), savingAccount, creditAccount);
+
         assertThrows(IllegalArgumentException.class, () -> sender.paySomeone(recipient, 600),
             "Transfer with insufficient funds should throw IllegalArgumentException.");
     }
@@ -78,12 +82,31 @@ public class AccountTest {
         assertEquals(0.0, creditAccount.showBalance(), "Balance should be zero after depositing to clear the debt.");
     }
 
-    // Test for deposit that exceeds outstanding balance on credit account
+    // Test deposit into Checking account
     @Test
-    public void testCreditDepositExceedsOutstandingBalance() {
-        Credit creditAccount = new Credit("67890", -50.0, 1000.0);
-        assertThrows(IllegalArgumentException.class, () -> creditAccount.deposit(100, "Test Customer", true),
-            "Deposit that exceeds outstanding balance should throw IllegalArgumentException.");
+    public void testCheckingDeposit() {
+        checkingAccount.deposit(200, "Test Customer", true);
+        assertEquals(700.0, checkingAccount.showBalance(), "Checking balance should increase by deposited amount.");
     }
-    
+
+    // Test deposit into Saving account
+    @Test
+    public void testSavingDeposit() {
+        savingAccount.deposit(500, "Test Customer", true);
+        assertEquals(1500.0, savingAccount.showBalance(), "Saving balance should increase by deposited amount.");
+    }
+
+    // Test withdrawal from Saving account
+    @Test
+    public void testSavingWithdrawal() {
+        savingAccount.withdraw(300, "Test Customer", true);
+        assertEquals(700.0, savingAccount.showBalance(), "Saving balance should decrease by withdrawn amount.");
+    }
+
+    // Test for withdrawal exceeding balance in Saving account
+    @Test
+    public void testSavingWithdrawalExceedingBalance() {
+        assertThrows(IllegalArgumentException.class, () -> savingAccount.withdraw(1100, "Test Customer", true),
+            "Withdrawal exceeding balance in Saving account should throw IllegalArgumentException.");
+    }
 }
