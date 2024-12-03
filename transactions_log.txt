@@ -4,3 +4,5 @@
 2024-12-01T19:12:51.444784 - Sam Lop deposited $100.0 to Credit-5009. New Balance: $100.0
 2024-12-01T19:14:49.693153 - Sam Lop withdrew $2000.0 from Checking-5007. New Balance: $198000.0
 2024-12-01T19:14:49.694364 - Denisse Loya deposited $2000.0 to Checking-5010. New Balance: $2000.0
+2024-12-01T21:22:20.469696 - Daniel A deposited $500.0 to Saving-3364.79. New Balance: $3578.0
+2024-12-01T21:23:21.750830 - Daniel A deposited $50000.0 to Credit-7985. New Balance: $49213.07

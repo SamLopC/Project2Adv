@@ -31,7 +31,7 @@ public class RunBank {
         System.out.println("Enter Last Name:");
         String lastName = scanner.nextLine();
     
-        System.out.println("Enter Date of Birth (YYYY-MM-DD):");
+        System.out.println("Enter Date of Birth (eg. 5-Mar-39, 19410505, 1941-05-05, 05/05/1941):");
         String dob = scanner.nextLine();
     
         System.out.println("Enter Address:");
@@ -1011,6 +1011,7 @@ public class RunBank {
             System.out.println("Welcome to El Paso Miners Bank! Please select your role:");
             System.out.println("1. Customer");
             System.out.println("2. Bank Manager");
+            System.out.println("3. Create New User");
             System.out.println("Type EXIT to leave.");
     
             action = scanner.nextLine().trim().toUpperCase();
@@ -1022,6 +1023,10 @@ public class RunBank {
     
                 case "2": // Bank Manager
                     bankManagerAccess();
+                    break;
+
+                case "3": // Create new user
+                    createNewUser();
                     break;
     
                 default:
